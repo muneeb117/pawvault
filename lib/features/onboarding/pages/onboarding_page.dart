@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../bloc/onboarding_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/router/router_helpers.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // PawVault — Onboarding (10 screens: 3 welcome + 5 questions + notifications + auth handoff)
@@ -59,17 +60,16 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
 
   Future<void> _finish() async {
     final s = context.read<OnboardingBloc>().state;
-    // Save answers locally — saved to Supabase after auth completes.
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_done', true);
     await prefs.setString('onboard_primary_species', s.primarySpecies ?? '');
     await prefs.setString('onboard_pet_count', s.petCount ?? '');
     await prefs.setStringList('onboard_priorities', s.priorities);
     await prefs.setString('onboard_care_time', s.careTime ?? '');
     await prefs.setString('onboard_referral', s.referralSource ?? '');
     await prefs.setBool('onboard_notifs', s.notificationsEnabled);
+    await AppFlags.setOnboardingDone(true);
     if (!mounted) return;
-    context.go(AppRoutes.signIn);
+    context.go(AppRoutes.authLanding);
   }
 
   @override

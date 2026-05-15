@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/onboarding/pages/onboarding_page.dart';
@@ -18,6 +17,7 @@ import '../../features/ai_assistant/pages/ai_assistant_page.dart';
 import '../../features/notifications/pages/notifications_page.dart';
 import '../../features/pro_upgrade/pages/pro_upgrade_page.dart';
 import '../../shared/widgets/main_shell.dart';
+import 'router_helpers.dart';
 
 abstract class AppRoutes {
   static const onboarding   = '/onboarding';
@@ -34,6 +34,7 @@ abstract class AppRoutes {
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.onboarding,
+  refreshListenable: AuthRefreshNotifier(),
   redirect: _guard,
   routes: [
     GoRoute(path: AppRoutes.onboarding,  builder: (_, __) => const OnboardingPage()),
@@ -70,9 +71,12 @@ final appRouter = GoRouter(
   ],
 );
 
-Future<String?> _guard(BuildContext context, GoRouterState state) async {
+// Synchronous guard — uses cached AppFlags + Supabase session.
+String? _guard(BuildContext context, GoRouterState state) {
   bool isAuth = false;
-  try { isAuth = Supabase.instance.client.auth.currentUser != null; } catch (_) {}
+  try {
+    isAuth = Supabase.instance.client.auth.currentUser != null;
+  } catch (_) {}
 
   final loc = state.matchedLocation;
   final isOnboarding = loc == AppRoutes.onboarding;
@@ -80,21 +84,14 @@ Future<String?> _guard(BuildContext context, GoRouterState state) async {
                      loc == AppRoutes.signIn ||
                      loc == AppRoutes.signUp;
 
-  // Check if onboarding has been completed
-  bool onboardingDone = false;
-  try {
-    final sp = await SharedPreferences.getInstance();
-    onboardingDone = sp.getBool('onboarding_done') ?? false;
-  } catch (_) {}
-
-  // Not authed — must complete onboarding first, then auth
-  if (!isAuth) {
-    if (!onboardingDone && !isOnboarding) return AppRoutes.onboarding;
-    if (onboardingDone && !isAuthFlow && !isOnboarding) return AppRoutes.authLanding;
+  // Authed: always allow protected screens; bounce out of pre-auth screens.
+  if (isAuth) {
+    if (isOnboarding || isAuthFlow) return AppRoutes.home;
     return null;
   }
 
-  // Authed — block onboarding/auth screens
-  if (isOnboarding || isAuthFlow) return AppRoutes.home;
+  // Not authed: enforce onboarding → auth → blocked-everywhere-else.
+  if (!AppFlags.onboardingDone && !isOnboarding) return AppRoutes.onboarding;
+  if (AppFlags.onboardingDone && !isAuthFlow && !isOnboarding) return AppRoutes.authLanding;
   return null;
 }

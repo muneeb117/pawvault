@@ -9,6 +9,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/assets/app_assets.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/user_preferences_repository.dart';
 import '../../../data/models/user_preferences_model.dart';
@@ -157,9 +158,14 @@ class _AuthLandingView extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Apple
+                  // Apple — uses assets/icons/auth/apple.png if present
                   _AuthButton(
-                    icon: LucideIcons.apple,
+                    iconWidget: const AppImage(
+                      assetPath: AppAssets.appleLogo,
+                      size: 18,
+                      fallback: LucideIcons.apple,
+                      color: AppColors.bone,
+                    ),
                     label: 'Continue with Apple',
                     bg: AppColors.ink, fg: AppColors.bone,
                     loading: loading,
@@ -167,9 +173,15 @@ class _AuthLandingView extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // Google
+                  // Google — uses assets/icons/auth/google.png if present, falls back to painted glyph
                   _AuthButton(
-                    iconWidget: const _GoogleGlyph(),
+                    iconWidget: SizedBox(
+                      width: 18, height: 18,
+                      child: Image.asset(
+                        AppAssets.googleLogo,
+                        errorBuilder: (_, __, ___) => const _GoogleGlyph(),
+                      ),
+                    ),
                     label: 'Continue with Google',
                     bg: AppColors.surface, fg: AppColors.ink,
                     bordered: true,
