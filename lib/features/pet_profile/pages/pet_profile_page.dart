@@ -132,7 +132,7 @@ class _PetProfilePageState extends State<PetProfilePage>
 
                   const SizedBox(height: 3),
                   Text('${_pet.breed} · ${_pet.gender ?? ''}',
-                      style: GoogleFonts.notoSans(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.stone)),
+                      style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.stone)),
 
                   const SizedBox(height: 12),
 
@@ -159,7 +159,7 @@ class _PetProfilePageState extends State<PetProfilePage>
                             ),
                             child: Text(
                               _moodLabel(m),
-                              style: GoogleFonts.notoSans(fontSize: 11, fontWeight: FontWeight.w500,
+                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500,
                                   color: active ? AppColors.bone : AppColors.stone),
                             ),
                           ),
@@ -217,7 +217,7 @@ class _PetProfilePageState extends State<PetProfilePage>
                               ),
                               child: Center(
                                 child: Text(_tabs3[i],
-                                    style: GoogleFonts.notoSans(fontSize: 13, fontWeight: FontWeight.w500,
+                                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500,
                                         color: active ? AppColors.bone : AppColors.stone)),
                               ),
                             ),
@@ -270,7 +270,7 @@ class _StatCell extends StatelessWidget {
                     color: AppColors.ink, letterSpacing: -0.5, height: 1)),
             const SizedBox(height: 6),
             Text(label,
-                style: GoogleFonts.notoSans(
+                style: GoogleFonts.inter(
                     fontSize: 10, fontWeight: FontWeight.w600,
                     color: AppColors.stone2, letterSpacing: 0.1 * 10)),
           ],
@@ -329,7 +329,7 @@ class _OverviewTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(pet.about ?? '',
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.inter(
                       fontSize: 13, color: AppColors.ink2, height: 1.55)),
               const SizedBox(height: 12),
               Wrap(spacing: 6, runSpacing: 6, children: [
@@ -413,7 +413,7 @@ class _WeightCard extends StatelessWidget {
                     ),
                     TextSpan(
                       text: ' lbs',
-                      style: GoogleFonts.notoSans(
+                      style: GoogleFonts.inter(
                           fontSize: 13, color: AppColors.stone2, fontWeight: FontWeight.w400),
                     ),
                   ],
@@ -427,7 +427,7 @@ class _WeightCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text('Ideal range',
-                    style: GoogleFonts.notoSans(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.sage600)),
+                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.sage600)),
               ),
             ],
           ),
@@ -437,7 +437,7 @@ class _WeightCard extends StatelessWidget {
               const Icon(Icons.trending_up_rounded, size: 13, color: AppColors.sage600),
               const SizedBox(width: 4),
               Text('+1.2 lbs vs Dec',
-                  style: GoogleFonts.notoSans(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.sage600)),
+                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.sage600)),
             ],
           ),
           const SizedBox(height: 10),
@@ -455,7 +455,7 @@ class _WeightCard extends StatelessWidget {
                     showTitles: true,
                     getTitlesWidget: (v, _) => Text(
                       _months[v.toInt() % _months.length],
-                      style: GoogleFonts.notoSans(fontSize: 10, color: AppColors.stone),
+                      style: GoogleFonts.inter(fontSize: 10, color: AppColors.stone),
                     ),
                   ),
                 ),
@@ -498,7 +498,7 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(text,
-      style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w700,
+      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700,
           letterSpacing: 1.2, color: AppColors.stone2));
 }
 
@@ -513,7 +513,7 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-      child: Text(label, style: GoogleFonts.notoSans(fontSize: 12, fontWeight: FontWeight.w500, color: fg)),
+      child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: fg)),
     );
   }
 }
@@ -546,10 +546,10 @@ class _IdRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone)),
+                Text(label, style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone)),
                 const SizedBox(height: 1),
                 Text(value,
-                    style: GoogleFonts.notoSans(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.ink),
+                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.ink),
                     overflow: TextOverflow.ellipsis),
               ],
             ),
@@ -604,7 +604,7 @@ class _PlaceholderCard extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppColors.stone2),
           const SizedBox(width: 12),
-          Text(label, style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone)),
+          Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone)),
         ],
       ),
     );
@@ -631,11 +631,11 @@ class _PhotosTab extends StatelessWidget {
               style: GoogleFonts.bricolageGrotesque(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink)),
           const SizedBox(height: 6),
           Text('Capture their best moments.',
-              style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone)),
+              style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone)),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
-            label: Text('Add photos', style: GoogleFonts.notoSans(fontSize: 14, fontWeight: FontWeight.w600)),
+            label: Text('Add photos', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
             onPressed: () {},
           ),
         ],

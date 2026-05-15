@@ -82,7 +82,7 @@ class _RecordsPageState extends State<RecordsPage> {
                       child: Column(
                         children: [
                           Text('BISCUIT · ALL-TIME',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 10, fontWeight: FontWeight.w600,
                                   color: AppColors.stone2, letterSpacing: 1.2)),
                           Text('Records',
@@ -116,7 +116,7 @@ class _RecordsPageState extends State<RecordsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('SPENT THIS YEAR',
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 10, fontWeight: FontWeight.w700,
                                     letterSpacing: 1.2, color: AppColors.stone2)),
                             const SizedBox(height: 4),
@@ -139,7 +139,7 @@ class _RecordsPageState extends State<RecordsPage> {
                             ),
                             const SizedBox(height: 4),
                             Text('across 6 records',
-                                style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.stone)),
+                                style: GoogleFonts.inter(fontSize: 12, color: AppColors.stone)),
                           ],
                         ),
                       ),
@@ -156,7 +156,7 @@ class _RecordsPageState extends State<RecordsPage> {
                           ]),
                           child: Center(
                             child: Text('2026',
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 11, fontWeight: FontWeight.w600,
                                     color: AppColors.stone)),
                           ),
@@ -190,7 +190,7 @@ class _RecordsPageState extends State<RecordsPage> {
                           ),
                           child: Center(
                             child: Text(f,
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 12, fontWeight: FontWeight.w600,
                                     color: active ? Colors.white : AppColors.ink2)),
                           ),
@@ -224,7 +224,7 @@ class _RecordsPageState extends State<RecordsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(group.label,
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.inter(
                   fontSize: 11, fontWeight: FontWeight.w700,
                   letterSpacing: 1.2, color: AppColors.stone2)),
           const SizedBox(height: 8),
@@ -256,7 +256,7 @@ class _RecordRow extends StatelessWidget {
                         color: AppColors.ink, height: 1)),
                 const SizedBox(height: 2),
                 Text(record.month,
-                    style: GoogleFonts.notoSans(
+                    style: GoogleFonts.inter(
                         fontSize: 9, fontWeight: FontWeight.w700,
                         letterSpacing: 0.5, color: AppColors.stone2)),
               ],
@@ -284,10 +284,10 @@ class _RecordRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(record.title,
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.ink)),
                         Text(record.sub,
-                            style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone)),
+                            style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone)),
                         const SizedBox(height: 4),
                         Row(
                           children: [
@@ -298,14 +298,14 @@ class _RecordRow extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(record.kind,
-                                  style: GoogleFonts.notoSans(
+                                  style: GoogleFonts.inter(
                                       fontSize: 10, fontWeight: FontWeight.w500, color: AppColors.ink2)),
                             ),
                             const SizedBox(width: 6),
                             const Icon(Icons.description_outlined, size: 11, color: AppColors.stone2),
                             const SizedBox(width: 2),
                             Text('${record.docs}',
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 10, color: AppColors.stone2, fontWeight: FontWeight.w600)),
                           ],
                         ),
@@ -314,7 +314,7 @@ class _RecordRow extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(record.price,
-                      style: GoogleFonts.notoSans(
+                      style: GoogleFonts.inter(
                           fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.ink)),
                 ],
               ),

@@ -69,7 +69,7 @@ class _VaccinesPageState extends State<VaccinesPage> {
                       child: Column(
                         children: [
                           Text('BISCUIT',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 10, fontWeight: FontWeight.w600,
                                   color: AppColors.stone2, letterSpacing: 1.2)),
                           Text('Vaccines',
@@ -113,7 +113,7 @@ class _VaccinesPageState extends State<VaccinesPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('NEXT BOOSTER',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 11, fontWeight: FontWeight.w700,
                                   color: Colors.white.withValues(alpha: 0.9),
                                   letterSpacing: 0.06 * 11)),
@@ -126,7 +126,7 @@ class _VaccinesPageState extends State<VaccinesPage> {
                                   letterSpacing: -0.5, height: 1.05)),
                           const SizedBox(height: 4),
                           Text('Tue, May 27 · Happy Paws Vet',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 13, color: Colors.white.withValues(alpha: 0.85))),
                           const SizedBox(height: 16),
                           Row(
@@ -190,7 +190,7 @@ class _VaccinesPageState extends State<VaccinesPage> {
                           ),
                           child: Center(
                             child: Text(f,
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 12, fontWeight: FontWeight.w600,
                                     color: active ? Colors.white : AppColors.ink2)),
                           ),
@@ -236,7 +236,7 @@ class _PillBtn extends StatelessWidget {
           Icon(icon, size: 14, color: fg),
           const SizedBox(width: 6),
           Text(label,
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.inter(
                   fontSize: 12, fontWeight: FontWeight.w600, color: fg)),
         ],
       ),
@@ -270,7 +270,7 @@ class _SummaryTile extends StatelessWidget {
                   color: AppColors.ink, height: 1, letterSpacing: -0.5)),
           const SizedBox(height: 4),
           Text(label,
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.inter(
                   fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.stone)),
         ],
       ),
@@ -317,7 +317,7 @@ class _VaccineTile extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(vaccine.name,
-                          style: GoogleFonts.notoSans(
+                          style: GoogleFonts.inter(
                               fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.ink)),
                     ),
                     const SizedBox(width: 6),
@@ -333,7 +333,7 @@ class _VaccineTile extends StatelessWidget {
                               decoration: BoxDecoration(color: chipFg, shape: BoxShape.circle)),
                           const SizedBox(width: 5),
                           Text(chipLabel,
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 10, fontWeight: FontWeight.w600, color: chipFg)),
                         ],
                       ),
@@ -342,7 +342,7 @@ class _VaccineTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(vaccine.notes,
-                    style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.stone)),
+                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.stone)),
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -350,9 +350,9 @@ class _VaccineTile extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Last', style: GoogleFonts.notoSans(fontSize: 10, color: AppColors.stone2)),
+                          Text('Last', style: GoogleFonts.inter(fontSize: 10, color: AppColors.stone2)),
                           Text(vaccine.last,
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink)),
                         ],
                       ),
@@ -361,15 +361,15 @@ class _VaccineTile extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Next', style: GoogleFonts.notoSans(fontSize: 10, color: AppColors.stone2)),
+                          Text('Next', style: GoogleFonts.inter(fontSize: 10, color: AppColors.stone2)),
                           Text(vaccine.next,
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink)),
                         ],
                       ),
                     ),
                     Text(vaccine.remaining,
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                             fontSize: 12, fontWeight: FontWeight.w600, color: remColor)),
                   ],
                 ),

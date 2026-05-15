@@ -121,7 +121,7 @@ class _SignUpViewState extends State<_SignUpView> {
                           color: AppColors.ink, letterSpacing: -1.2, height: 1.05)),
                   const SizedBox(height: 8),
                   Text("Let's set up your vault.",
-                      style: GoogleFonts.notoSans(fontSize: 14, color: AppColors.stone, height: 1.5)),
+                      style: GoogleFonts.inter(fontSize: 14, color: AppColors.stone, height: 1.5)),
                   const SizedBox(height: 28),
 
                   _Field(
@@ -165,7 +165,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text('Create account',
-                                    style: GoogleFonts.notoSans(fontSize: 15, fontWeight: FontWeight.w600)),
+                                    style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600)),
                                 const SizedBox(width: 6),
                                 const Icon(LucideIcons.arrowRight, size: 16),
                               ],
@@ -180,12 +180,12 @@ class _SignUpViewState extends State<_SignUpView> {
                       onTap: () => context.go(AppRoutes.signIn),
                       child: Text.rich(
                         TextSpan(
-                          style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone),
+                          style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone),
                           children: [
                             const TextSpan(text: 'Already have an account? '),
                             TextSpan(
                               text: 'Sign in',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink),
                             ),
                           ],
@@ -236,7 +236,7 @@ class _Field extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: GoogleFonts.notoSans(
+                    style: GoogleFonts.inter(
                         fontSize: 10, fontWeight: FontWeight.w700,
                         letterSpacing: 0.5, color: AppColors.stone)),
                 const SizedBox(height: 2),
@@ -245,11 +245,11 @@ class _Field extends StatelessWidget {
                   keyboardType: keyboardType,
                   obscureText: obscure,
                   onChanged: onChanged,
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.inter(
                       fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.ink),
                   decoration: InputDecoration(
                     hintText: hint,
-                    hintStyle: GoogleFonts.notoSans(fontSize: 14, color: AppColors.stone2),
+                    hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.stone2),
                     border: InputBorder.none, enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none, isDense: true,
                     contentPadding: EdgeInsets.zero,

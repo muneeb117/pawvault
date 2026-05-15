@@ -141,7 +141,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
                             minimumSize: const Size(40, 32),
                           ),
                           child: Text('Skip',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 13, fontWeight: FontWeight.w600,
                                   color: AppColors.stone)),
                         ),
@@ -150,41 +150,26 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
                 ),
               ),
 
-              // ── Progress / dots indicator ────────────────────────
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-                child: _isWelcome
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(3, (i) {
-                          final active = i == _page;
-                          return AnimatedContainer(
-                            duration: 250.ms,
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            width: active ? 22 : 6, height: 6,
-                            decoration: BoxDecoration(
-                              color: active ? AppColors.ink : AppColors.line,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                          );
-                        }),
-                      )
-                    : Row(
-                        children: List.generate(_totalSteps - 3, (i) {
-                          final idx = i + 3;
-                          return Expanded(
-                            child: Container(
-                              margin: EdgeInsets.only(left: i > 0 ? 4 : 0),
-                              height: 3,
-                              decoration: BoxDecoration(
-                                color: idx <= _page ? AppColors.ink : AppColors.line,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-              ),
+              // ── Progress bar — only for question screens, at TOP ──
+              if (!_isWelcome)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                  child: Row(
+                    children: List.generate(_totalSteps - 3, (i) {
+                      final idx = i + 3;
+                      return Expanded(
+                        child: Container(
+                          margin: EdgeInsets.only(left: i > 0 ? 4 : 0),
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: idx <= _page ? AppColors.ink : AppColors.line,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
 
               // ── Page body ────────────────────────────────────────
               Expanded(
@@ -208,11 +193,32 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
                 ),
               ),
 
+              // ── Welcome dots — placed JUST ABOVE the Continue button ──
+              if (_isWelcome)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(3, (i) {
+                      final active = i == _page;
+                      return AnimatedContainer(
+                        duration: 250.ms,
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        width: active ? 22 : 6, height: 6,
+                        decoration: BoxDecoration(
+                          color: active ? AppColors.ink : AppColors.line,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+
               // ── Bottom CTA row: back (icon) + Continue ──
               SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
                   child: Row(
                     children: [
                       if (_page > 0) ...[
@@ -245,7 +251,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
                               children: [
                                 Text(
                                   _isLast ? 'Continue to sign up' : 'Continue',
-                                  style: GoogleFonts.notoSans(
+                                  style: GoogleFonts.inter(
                                       fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.bone),
                                 ),
                                 const SizedBox(width: 6),
@@ -313,7 +319,8 @@ class _WelcomeSlide extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Column(
         children: [
-          Expanded(
+          AspectRatio(
+            aspectRatio: 1.05,
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -333,7 +340,7 @@ class _WelcomeSlide extends StatelessWidget {
                       child: Icon(LucideIcons.pawPrint, size: 24, color: AppColors.ink.withValues(alpha: 0.04))),
                   Center(
                     child: SizedBox(
-                      width: 220, height: 220,
+                      width: 200, height: 200,
                       child: Lottie.asset(
                         lottiePath, fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) => const Icon(LucideIcons.pawPrint, size: 80, color: AppColors.clay500),
@@ -344,7 +351,7 @@ class _WelcomeSlide extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
@@ -357,15 +364,17 @@ class _WelcomeSlide extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(title,
                     style: GoogleFonts.bricolageGrotesque(
-                        fontSize: 34, fontWeight: FontWeight.w600,
+                        fontSize: 32, fontWeight: FontWeight.w600,
                         color: AppColors.ink, letterSpacing: -1.2, height: 1.05)),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(body,
-                    style: GoogleFonts.notoSans(fontSize: 14, color: AppColors.stone, height: 1.5)),
+                    style: GoogleFonts.inter(
+                        fontSize: 14, fontWeight: FontWeight.w400,
+                        color: AppColors.stone, height: 1.5)),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const Spacer(),
         ],
       ),
     );
@@ -396,7 +405,7 @@ class _QuestionFrame extends StatelessWidget {
                   color: AppColors.ink, letterSpacing: -0.9, height: 1.1)),
           const SizedBox(height: 8),
           Text(helper,
-              style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone, height: 1.5)),
+              style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone, height: 1.5)),
           const SizedBox(height: 28),
           Expanded(child: child),
         ],
@@ -456,7 +465,7 @@ class _QuestionSpecies extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(o.$4, style: GoogleFonts.notoSans(
+                  Text(o.$4, style: GoogleFonts.inter(
                       fontSize: 13, fontWeight: FontWeight.w600,
                       color: active ? AppColors.bone : AppColors.ink)),
                 ],
@@ -554,7 +563,7 @@ class _QuestionPriorities extends StatelessWidget {
                           color: active ? AppColors.bone : AppColors.clay500),
                       const SizedBox(width: 8),
                       Text(o.$3,
-                          style: GoogleFonts.notoSans(
+                          style: GoogleFonts.inter(
                               fontSize: 13, fontWeight: FontWeight.w600,
                               color: active ? AppColors.bone : AppColors.ink)),
                     ],
@@ -618,11 +627,11 @@ class _QuestionCareTime extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(o.$3,
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 14, fontWeight: FontWeight.w600,
                                 color: active ? AppColors.bone : AppColors.ink)),
                         Text(o.$4,
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: active ? AppColors.bone.withValues(alpha: 0.7) : AppColors.stone)),
                       ],
@@ -680,7 +689,7 @@ class _QuestionReferral extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(o.$3,
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                             fontSize: 14, fontWeight: FontWeight.w500,
                             color: active ? AppColors.bone : AppColors.ink)),
                   ),
@@ -733,12 +742,12 @@ class _QuestionNotifications extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('PawVault · 8:00 AM',
-                          style: GoogleFonts.notoSans(
+                          style: GoogleFonts.inter(
                               fontSize: 11, fontWeight: FontWeight.w600,
                               color: AppColors.stone2, letterSpacing: 0.4)),
                       const SizedBox(height: 2),
                       Text('Heartgard Plus — time for the chewable.',
-                          style: GoogleFonts.notoSans(
+                          style: GoogleFonts.inter(
                               fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.ink)),
                     ],
                   ),
@@ -763,7 +772,7 @@ class _QuestionNotifications extends StatelessWidget {
                       size: 16, color: enabled ? AppColors.bone : AppColors.ink),
                   const SizedBox(width: 8),
                   Text(enabled ? 'Notifications on' : 'Turn on notifications',
-                      style: GoogleFonts.notoSans(
+                      style: GoogleFonts.inter(
                           fontSize: 14, fontWeight: FontWeight.w600,
                           color: enabled ? AppColors.bone : AppColors.ink)),
                 ],
@@ -775,7 +784,7 @@ class _QuestionNotifications extends StatelessWidget {
             onTap: () => context.read<OnboardingBloc>().add(const OnboardingNotificationsToggled(false)),
             child: Center(
               child: Text('Maybe later',
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.inter(
                       fontSize: 13, fontWeight: FontWeight.w500,
                       color: AppColors.stone)),
             ),

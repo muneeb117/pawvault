@@ -151,7 +151,7 @@ class _AuthLandingView extends StatelessWidget {
                               color: AppColors.ink, letterSpacing: -0.9, height: 1.05)),
                       const SizedBox(height: 8),
                       Text("Sign in to sync across devices and never lose a record.",
-                          style: GoogleFonts.notoSans(
+                          style: GoogleFonts.inter(
                               fontSize: 13, color: AppColors.stone, height: 1.5)),
                     ],
                   ),
@@ -197,7 +197,7 @@ class _AuthLandingView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Text('or',
-                            style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.stone2)),
+                            style: GoogleFonts.inter(fontSize: 12, color: AppColors.stone2)),
                       ),
                       const Expanded(child: Divider(color: AppColors.line)),
                     ],
@@ -212,7 +212,7 @@ class _AuthLandingView extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: 'Continue with email',
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.ink),
                           ),
                           const WidgetSpan(child: SizedBox(width: 6)),
@@ -228,7 +228,7 @@ class _AuthLandingView extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text.rich(
                       TextSpan(
-                        style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone2, height: 1.5),
+                        style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone2, height: 1.5),
                         children: const [
                           TextSpan(text: 'By continuing you agree to our '),
                           TextSpan(text: 'Terms', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.stone)),
@@ -294,7 +294,7 @@ class _AuthButton extends StatelessWidget {
             else if (icon != null) Icon(icon, size: 18, color: fg),
             const SizedBox(width: 10),
             Text(label,
-                style: GoogleFonts.notoSans(
+                style: GoogleFonts.inter(
                     fontSize: 15, fontWeight: FontWeight.w600, color: fg)),
           ],
         ),

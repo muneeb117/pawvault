@@ -49,7 +49,7 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('BISCUIT',
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 10, fontWeight: FontWeight.w600,
                                 color: AppColors.stone2, letterSpacing: 0.08 * 10)),
                         Text('Care',
@@ -97,7 +97,7 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       child: Text(d,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.notoSans(
+                          style: GoogleFonts.inter(
                               fontSize: 10, fontWeight: FontWeight.w600,
                               color: AppColors.stone2, letterSpacing: 0.08 * 10)),
                     ),
@@ -156,7 +156,7 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
                               ),
                             ),
                             Text('50%',
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink)),
                           ],
                         ),
@@ -220,7 +220,7 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('$d',
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: isToday || isSelected ? FontWeight.w600 : FontWeight.w400,
                     color: isSelected ? AppColors.bone : AppColors.ink,
@@ -298,10 +298,10 @@ class _ScheduleRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(item.time.split(' ')[0],
-                      style: GoogleFonts.notoSans(
+                      style: GoogleFonts.inter(
                           fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.stone)),
                   Text(item.time.split(' ').length > 1 ? item.time.split(' ')[1] : '',
-                      style: GoogleFonts.notoSans(fontSize: 10, color: AppColors.stone2)),
+                      style: GoogleFonts.inter(fontSize: 10, color: AppColors.stone2)),
                 ],
               ),
             ),
@@ -339,14 +339,14 @@ class _ScheduleRow extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(item.title,
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                 fontSize: 13, fontWeight: FontWeight.w600,
                                 color: item.done ? AppColors.stone : AppColors.ink,
                                 decoration: item.done ? TextDecoration.lineThrough : null,
                                 decorationColor: AppColors.stone,
                               )),
                           Text('${item.time} · ${item.kind}',
-                              style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone2)),
+                              style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone2)),
                         ],
                       ),
                     ),

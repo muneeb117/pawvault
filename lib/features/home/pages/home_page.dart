@@ -83,7 +83,7 @@ class _NoPetsView extends StatelessWidget {
                       color: AppColors.ink, letterSpacing: -0.8)),
               const SizedBox(height: 8),
               Text('Start building their health vault.',
-                  style: GoogleFonts.notoSans(fontSize: 15, color: AppColors.stone, height: 1.5)),
+                  style: GoogleFonts.inter(fontSize: 15, color: AppColors.stone, height: 1.5)),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -93,7 +93,7 @@ class _NoPetsView extends StatelessWidget {
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     const Icon(Icons.add_rounded, size: 18),
                     const SizedBox(width: 6),
-                    Text('Add Pet', style: GoogleFonts.notoSans(fontSize: 15, fontWeight: FontWeight.w600)),
+                    Text('Add Pet', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600)),
                   ]),
                 ),
               ),
@@ -147,7 +147,7 @@ class _ReadyView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(dayLabel,
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 11, fontWeight: FontWeight.w500,
                                   color: AppColors.stone2, letterSpacing: 0.06 * 11)),
                           const SizedBox(height: 2),
@@ -195,7 +195,7 @@ class _ReadyView extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(initials,
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
                       ),
                     ),
@@ -257,7 +257,7 @@ class _ReadyView extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(pet.name,
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 13, fontWeight: FontWeight.w600,
                                   color: active ? Colors.white : AppColors.ink)),
                         ],
@@ -342,7 +342,7 @@ class _PetHeroCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('YOUR BUDDY',
-                              style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w600,
+                              style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600,
                                   color: AppColors.stone2, letterSpacing: 0.1 * 10)),
                           const SizedBox(height: 6),
                           Text(pet.name,
@@ -351,7 +351,7 @@ class _PetHeroCard extends StatelessWidget {
                                   color: AppColors.ink, letterSpacing: -1.4, height: 0.95)),
                           const SizedBox(height: 4),
                           Text('${pet.breed} · ${pet.gender ?? ''}',
-                              style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.stone)),
+                              style: GoogleFonts.inter(fontSize: 12, color: AppColors.stone)),
                         ],
                       ),
                     ),
@@ -369,7 +369,7 @@ class _PetHeroCard extends StatelessWidget {
                           children: [
                             const Icon(Icons.edit_outlined, size: 12, color: AppColors.ink2),
                             const SizedBox(width: 4),
-                            Text('Edit', style: GoogleFonts.notoSans(
+                            Text('Edit', style: GoogleFonts.inter(
                                 fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.ink2)),
                           ],
                         ),
@@ -410,7 +410,7 @@ class _PetHeroCard extends StatelessWidget {
                                     const Icon(Icons.auto_awesome_outlined, size: 12, color: AppColors.stone),
                                     const SizedBox(width: 6),
                                     Text('Tap ${pet.name} to play',
-                                        style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone)),
+                                        style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone)),
                                   ],
                                 ),
                               ),
@@ -458,7 +458,7 @@ class _StatPill extends StatelessWidget {
         children: [
           Icon(icon, size: 13, color: AppColors.stone),
           const SizedBox(width: 5),
-          Text(value, style: GoogleFonts.notoSans(
+          Text(value, style: GoogleFonts.inter(
               fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.ink2)),
         ],
       ),
@@ -494,13 +494,13 @@ class _UpNextCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('UP NEXT · IN 12 DAYS',
-                    style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w600,
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600,
                         color: AppColors.ochre600, letterSpacing: 0.5)),
                 const SizedBox(height: 2),
                 Text('Rabies booster — May 27',
-                    style: GoogleFonts.notoSans(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.ink)),
+                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.ink)),
                 Text('Happy Paws Vet · Dr. Nguyen',
-                    style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.stone)),
+                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.stone)),
               ],
             ),
           ),
@@ -537,7 +537,7 @@ class _QuickCareRow extends StatelessWidget {
             GestureDetector(
               onTap: () {},
               child: Text('Customize',
-                  style: GoogleFonts.notoSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.stone)),
+                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.stone)),
             ),
           ],
         ),
@@ -567,7 +567,7 @@ class _QuickCareRow extends StatelessWidget {
                         child: Icon(a.$1, size: 18, color: a.$4),
                       ),
                       const SizedBox(height: 6),
-                      Text(a.$2, style: GoogleFonts.notoSans(
+                      Text(a.$2, style: GoogleFonts.inter(
                           fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.ink)),
                     ],
                   ),
@@ -599,7 +599,7 @@ class _TodaySection extends StatelessWidget {
                     letterSpacing: 0.06 * 12, color: AppColors.stone)),
             const Spacer(),
             Text('$doneCount of ${events.length} done',
-                style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone)),
+                style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone)),
           ],
         ),
         const SizedBox(height: 10),
@@ -617,7 +617,7 @@ class _TodaySection extends StatelessWidget {
                 const Icon(Icons.check_circle_rounded, color: AppColors.sage500, size: 18),
                 const SizedBox(width: 10),
                 Text('All caught up for today!',
-                    style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone)),
+                    style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone)),
               ],
             ),
           )
@@ -703,7 +703,7 @@ class _TodayRow extends StatelessWidget {
                     children: [
                       Text(
                         event.title,
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                           fontSize: 13, fontWeight: FontWeight.w500,
                           color: isDone ? AppColors.stone : AppColors.ink,
                           decoration: isDone ? TextDecoration.lineThrough : null,
@@ -713,7 +713,7 @@ class _TodayRow extends StatelessWidget {
                       if (event.subtitle != null)
                         Text(
                           event.subtitle!,
-                          style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone2),
+                          style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone2),
                         ),
                     ],
                   ),

@@ -24,7 +24,7 @@ abstract class AppTheme {
           elevation: 0,
           scrolledUnderElevation: 0,
           centerTitle: false,
-          titleTextStyle: GoogleFonts.notoSans(
+          titleTextStyle: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppColors.stone2,
@@ -46,7 +46,7 @@ abstract class AppTheme {
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-            textStyle: GoogleFonts.notoSans(
+            textStyle: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               letterSpacing: -0.01 * 14,
@@ -59,7 +59,7 @@ abstract class AppTheme {
             side: const BorderSide(color: AppColors.border),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-            textStyle: GoogleFonts.notoSans(
+            textStyle: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -67,7 +67,7 @@ abstract class AppTheme {
         ),
         chipTheme: ChipThemeData(
           backgroundColor: AppColors.neutral100,
-          labelStyle: GoogleFonts.notoSans(
+          labelStyle: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: AppColors.ink2,
@@ -96,7 +96,7 @@ abstract class AppTheme {
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: AppColors.clay500, width: 1.5),
           ),
-          hintStyle: GoogleFonts.notoSans(
+          hintStyle: GoogleFonts.inter(
             color: AppColors.stone2,
             fontSize: 14,
           ),
@@ -141,47 +141,47 @@ abstract class AppTheme {
           color: AppColors.ink,
           letterSpacing: -0.4,
         ),
-        titleLarge: GoogleFonts.notoSans(
+        titleLarge: GoogleFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.ink,
         ),
-        titleMedium: GoogleFonts.notoSans(
+        titleMedium: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.ink,
         ),
-        titleSmall: GoogleFonts.notoSans(
+        titleSmall: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.ink,
         ),
-        bodyLarge: GoogleFonts.notoSans(
+        bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: AppColors.ink,
         ),
-        bodyMedium: GoogleFonts.notoSans(
+        bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: AppColors.ink,
         ),
-        bodySmall: GoogleFonts.notoSans(
+        bodySmall: GoogleFonts.inter(
           fontSize: 12,
           fontWeight: FontWeight.w400,
           color: AppColors.stone,
         ),
-        labelLarge: GoogleFonts.notoSans(
+        labelLarge: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: AppColors.ink,
         ),
-        labelMedium: GoogleFonts.notoSans(
+        labelMedium: GoogleFonts.inter(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.stone,
         ),
-        labelSmall: GoogleFonts.notoSans(
+        labelSmall: GoogleFonts.inter(
           fontSize: 10,
           fontWeight: FontWeight.w600,
           color: AppColors.stone2,

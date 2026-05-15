@@ -63,7 +63,7 @@ class MedicationsPage extends StatelessWidget {
                       child: Column(
                         children: [
                           Text('BISCUIT',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 10, fontWeight: FontWeight.w600,
                                   color: AppColors.stone2, letterSpacing: 1.2)),
                           Text('Medications',
@@ -100,7 +100,7 @@ class MedicationsPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('TODAY · MAY 15',
-                                    style: GoogleFonts.notoSans(
+                                    style: GoogleFonts.inter(
                                         fontSize: 10, fontWeight: FontWeight.w700,
                                         letterSpacing: 1.2, color: AppColors.stone2)),
                                 const SizedBox(height: 4),
@@ -129,7 +129,7 @@ class MedicationsPage extends StatelessWidget {
                                   ),
                                 ),
                                 Text('67%',
-                                    style: GoogleFonts.notoSans(
+                                    style: GoogleFonts.inter(
                                         fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.ink)),
                               ],
                             ),
@@ -153,11 +153,11 @@ class MedicationsPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('ACTIVE',
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                             fontSize: 10, fontWeight: FontWeight.w700,
                             letterSpacing: 1.2, color: AppColors.stone2)),
                     Text('${_meds.length} medications',
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                             fontSize: 11, color: AppColors.stone)),
                   ],
                 ),
@@ -200,10 +200,10 @@ class MedicationsPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Cosequin running low',
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                     fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.rose600)),
                             Text('4 chewables left · auto-refill ready',
-                                style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.rose600.withValues(alpha: 0.85))),
+                                style: GoogleFonts.inter(fontSize: 11, color: AppColors.rose600.withValues(alpha: 0.85))),
                           ],
                         ),
                       ),
@@ -214,7 +214,7 @@ class MedicationsPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text('Refill',
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                                 fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                       ),
                     ],
@@ -282,7 +282,7 @@ class _DayTimeline extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(s.time,
-                          style: GoogleFonts.notoSans(
+                          style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: s.isNow ? FontWeight.w700 : FontWeight.w500,
                               color: s.isNow ? AppColors.clay500 : AppColors.stone)),
@@ -326,21 +326,21 @@ class _MedTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(med.name,
-                    style: GoogleFonts.notoSans(
+                    style: GoogleFonts.inter(
                         fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.ink)),
                 Text(med.kind,
-                    style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.stone)),
+                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone)),
                 const SizedBox(height: 6),
                 Row(
                   children: [
                     const Icon(Icons.notifications_outlined, size: 13, color: AppColors.stone2),
                     const SizedBox(width: 4),
                     Text('Next: ${med.next}',
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                             fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.stone)),
                     const Spacer(),
                     Text(med.leftLabel,
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                             fontSize: 11, fontWeight: FontWeight.w600,
                             color: med.lowRefill ? AppColors.rose600 : AppColors.stone)),
                   ],

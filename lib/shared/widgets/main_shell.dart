@@ -123,7 +123,7 @@ class _NavItem extends StatelessWidget {
           Icon(icon, size: 22, color: isActive ? AppColors.ink : AppColors.stone2),
           const SizedBox(height: 3),
           Text(label,
-              style: GoogleFonts.notoSans(
+              style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 color: isActive ? AppColors.ink : AppColors.stone2,

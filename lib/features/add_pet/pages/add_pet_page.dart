@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import '../bloc/add_pet_bloc.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/date_picker.dart';
 import '../../../core/router/app_router.dart';
 import '../../../data/models/pet_model.dart';
 import '../../../data/repositories/pet_repository.dart';
@@ -69,8 +70,10 @@ class _AddPetView extends StatelessWidget {
                         onTap: () {
                           if (state.step > 0) {
                             context.read<AddPetBloc>().add(const AddPetStepBacked());
-                          } else {
+                          } else if (context.canPop()) {
                             context.pop();
+                          } else {
+                            context.go(AppRoutes.home);
                           }
                         },
                         child: const Icon(Icons.close_rounded, size: 18, color: AppColors.ink),
@@ -78,7 +81,7 @@ class _AddPetView extends StatelessWidget {
                       const Spacer(),
                       Text(
                         'STEP ${state.step + 1} OF $_totalSteps',
-                        style: GoogleFonts.notoSans(
+                        style: GoogleFonts.inter(
                           fontSize: 11, fontWeight: FontWeight.w600,
                           color: AppColors.stone2, letterSpacing: 1.0,
                         ),
@@ -164,7 +167,7 @@ class _StepHeader extends StatelessWidget {
               )),
           const SizedBox(height: 6),
           Text(subtitle,
-              style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone, height: 1.5)),
+              style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone, height: 1.5)),
         ],
       ),
     );
@@ -216,7 +219,7 @@ class _StepFooter extends StatelessWidget {
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(label, style: GoogleFonts.notoSans(fontSize: 15, fontWeight: FontWeight.w600)),
+                          Text(label, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600)),
                           const SizedBox(width: 6),
                           const Icon(Icons.chevron_right_rounded, size: 18),
                         ],
@@ -276,7 +279,7 @@ class _StepSpecies extends StatelessWidget {
           title: "Who's joining\nthe family?",
           subtitle: "Pick your buddy's species to get started.",
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 20),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -284,7 +287,8 @@ class _StepSpecies extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1.05,
+              childAspectRatio: 1.0,
+              physics: const NeverScrollableScrollPhysics(),
               children: _species.map((s) {
                 final active = s.$1 == selected;
                 return GestureDetector(
@@ -317,7 +321,7 @@ class _StepSpecies extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(s.$4,
-                            style: GoogleFonts.notoSans(
+                            style: GoogleFonts.inter(
                               fontSize: 14, fontWeight: FontWeight.w600,
                               color: active ? AppColors.bone : AppColors.ink,
                             )),
@@ -359,17 +363,9 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
   }
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(DateTime.now().year - 1),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.ink),
-        ),
-        child: child!,
-      ),
+    final picked = await pickPawDate(
+      context,
+      initialDate: _dob ?? DateTime(DateTime.now().year - 1),
     );
     if (picked != null && mounted) {
       setState(() => _dob = picked);
@@ -447,7 +443,7 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
                                     ),
                                     child: Text(
                                       _moodLabel(m),
-                                      style: GoogleFonts.notoSans(
+                                      style: GoogleFonts.inter(
                                         fontSize: 10, fontWeight: FontWeight.w500,
                                         color: active ? AppColors.bone : AppColors.stone,
                                       ),
@@ -502,7 +498,7 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
                                     const Icon(Icons.camera_alt_outlined, size: 13, color: AppColors.ink2),
                                     const SizedBox(width: 6),
                                     Text('Upload photo instead',
-                                        style: GoogleFonts.notoSans(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.ink2)),
+                                        style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.ink2)),
                                   ],
                                 ),
                               ),
@@ -523,7 +519,7 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('SPECIES',
-                          style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
+                          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -546,7 +542,7 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('BASICS',
-                          style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
+                          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
                       const SizedBox(height: 8),
 
                       // Name field
@@ -565,15 +561,15 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('NAME', style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.stone, letterSpacing: 0.5)),
+                                  Text('NAME', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.stone, letterSpacing: 0.5)),
                                   const SizedBox(height: 2),
                                   TextFormField(
                                     controller: _nameCtrl,
                                     onChanged: (v) => context.read<AddPetBloc>().add(AddPetNameChanged(v)),
-                                    style: GoogleFonts.notoSans(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.ink),
+                                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.ink),
                                     decoration: InputDecoration(
                                       hintText: 'e.g. Biscuit',
-                                      hintStyle: GoogleFonts.notoSans(fontSize: 14, color: AppColors.stone2),
+                                      hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.stone2),
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
@@ -604,15 +600,15 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('BREED', style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.stone, letterSpacing: 0.5)),
+                                  Text('BREED', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.stone, letterSpacing: 0.5)),
                                   const SizedBox(height: 2),
                                   TextFormField(
                                     controller: _breedCtrl,
                                     onChanged: (v) => context.read<AddPetBloc>().add(AddPetBreedChanged(v)),
-                                    style: GoogleFonts.notoSans(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.ink),
+                                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.ink),
                                     decoration: InputDecoration(
                                       hintText: 'Golden Retriever',
-                                      hintStyle: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone2),
+                                      hintStyle: GoogleFonts.inter(fontSize: 13, color: AppColors.stone2),
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
@@ -638,11 +634,11 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('BIRTHDAY', style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.stone, letterSpacing: 0.5)),
+                                    Text('BIRTHDAY', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.stone, letterSpacing: 0.5)),
                                     const SizedBox(height: 2),
                                     Text(
                                       _dob == null ? 'Pick date' : _formatDate(_dob!),
-                                      style: GoogleFonts.notoSans(
+                                      style: GoogleFonts.inter(
                                         fontSize: 13, fontWeight: FontWeight.w500,
                                         color: _dob == null ? AppColors.stone2 : AppColors.ink,
                                       ),
@@ -703,7 +699,7 @@ class _StepAvatarAndBasicsState extends State<_StepAvatarAndBasics> {
               ),
               const SizedBox(height: 5),
               Text(label,
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.inter(
                     fontSize: 11, fontWeight: FontWeight.w600,
                     color: active ? AppColors.bone : AppColors.ink,
                   )),
@@ -768,7 +764,7 @@ class _StepHealthState extends State<_StepHealth> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Gender
-                Text('GENDER', style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
+                Text('GENDER', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
                 const SizedBox(height: 8),
                 Row(
                   children: ['Male', 'Female', 'Unknown'].map((g) {
@@ -790,7 +786,7 @@ class _StepHealthState extends State<_StepHealth> {
                           ),
                           child: Center(
                             child: Text(g,
-                                style: GoogleFonts.notoSans(
+                                style: GoogleFonts.inter(
                                   fontSize: 13, fontWeight: FontWeight.w600,
                                   color: sel ? AppColors.bone : AppColors.ink,
                                 )),
@@ -804,7 +800,7 @@ class _StepHealthState extends State<_StepHealth> {
                 const SizedBox(height: 20),
 
                 // Weight
-                Text('WEIGHT', style: GoogleFonts.notoSans(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
+                Text('WEIGHT', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: AppColors.stone2)),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
@@ -819,7 +815,7 @@ class _StepHealthState extends State<_StepHealth> {
                         child: TextFormField(
                           controller: _weightCtrl,
                           keyboardType: TextInputType.number,
-                          style: GoogleFonts.notoSans(fontSize: 14, fontWeight: FontWeight.w500),
+                          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
                           decoration: InputDecoration(
                             hintText: '0.0',
                             border: InputBorder.none,
@@ -827,11 +823,11 @@ class _StepHealthState extends State<_StepHealth> {
                             focusedBorder: InputBorder.none,
                             contentPadding: EdgeInsets.zero,
                             isDense: true,
-                            hintStyle: GoogleFonts.notoSans(color: AppColors.stone2),
+                            hintStyle: GoogleFonts.inter(color: AppColors.stone2),
                           ),
                         ),
                       ),
-                      Text('kg', style: GoogleFonts.notoSans(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.stone)),
+                      Text('kg', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.stone)),
                     ],
                   ),
                 ),
@@ -895,7 +891,7 @@ class _ToggleCardState extends State<_ToggleCard> {
             Icon(widget.icon, size: 20, color: _on ? AppColors.bone : AppColors.stone),
             const SizedBox(height: 8),
             Text(widget.label,
-                style: GoogleFonts.notoSans(
+                style: GoogleFonts.inter(
                   fontSize: 12, fontWeight: FontWeight.w600,
                   color: _on ? AppColors.bone : AppColors.ink,
                 )),

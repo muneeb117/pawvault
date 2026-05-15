@@ -125,7 +125,7 @@ class _SignInViewState extends State<_SignInView> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text('Sign in',
-                                    style: GoogleFonts.notoSans(fontSize: 15, fontWeight: FontWeight.w600)),
+                                    style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600)),
                                 const SizedBox(width: 6),
                                 const Icon(LucideIcons.arrowRight, size: 16),
                               ],
@@ -140,12 +140,12 @@ class _SignInViewState extends State<_SignInView> {
                       onTap: () => context.go(AppRoutes.signUp),
                       child: Text.rich(
                         TextSpan(
-                          style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.stone),
+                          style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone),
                           children: [
                             const TextSpan(text: "No account yet? "),
                             TextSpan(
                               text: 'Sign up',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.inter(
                                   fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink),
                             ),
                           ],
@@ -194,17 +194,17 @@ class _Field extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: GoogleFonts.notoSans(
+                Text(label, style: GoogleFonts.inter(
                     fontSize: 10, fontWeight: FontWeight.w700,
                     letterSpacing: 0.5, color: AppColors.stone)),
                 const SizedBox(height: 2),
                 TextField(
                   controller: controller, keyboardType: keyboardType,
                   obscureText: obscure, onChanged: onChanged,
-                  style: GoogleFonts.notoSans(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.ink),
+                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.ink),
                   decoration: InputDecoration(
                     hintText: hint,
-                    hintStyle: GoogleFonts.notoSans(fontSize: 14, color: AppColors.stone2),
+                    hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.stone2),
                     border: InputBorder.none, enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none, isDense: true,
                     contentPadding: EdgeInsets.zero,
