@@ -12,7 +12,10 @@ import '../../../core/router/app_router.dart';
 import '../../../core/router/router_helpers.dart';
 
 // ════════════════════════════════════════════════════════════════════════
-// PawVault — Onboarding (10 screens: 3 welcome + 5 questions + notifications + auth handoff)
+// PawVault — Onboarding
+// 9 screens: 3 welcome + 5 questions + 1 notifications
+// Uses local state for the page index (AnimatedSwitcher transitions),
+// BLoC only for answer storage.
 // ════════════════════════════════════════════════════════════════════════
 
 class OnboardingPage extends StatelessWidget {
@@ -34,28 +37,22 @@ class _OnboardingFlow extends StatefulWidget {
 }
 
 class _OnboardingFlowState extends State<_OnboardingFlow> {
-  final _controller = PageController();
-  static const _totalSteps = 9; // 3 welcome + 5 questions + 1 notifications
+  int _page = 0;
+  static const _totalSteps = 9;
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  bool get _isWelcome => _page < 3;
+  bool get _isLast => _page == _totalSteps - 1;
 
   void _next() {
-    final state = context.read<OnboardingBloc>().state;
-    if (state.currentPage < _totalSteps - 1) {
-      _controller.nextPage(duration: 300.ms, curve: Curves.easeInOut);
-    } else {
+    if (_isLast) {
       _finish();
+    } else {
+      setState(() => _page++);
     }
   }
 
   void _back() {
-    if (context.read<OnboardingBloc>().state.currentPage > 0) {
-      _controller.previousPage(duration: 300.ms, curve: Curves.easeInOut);
-    }
+    if (_page > 0) setState(() => _page--);
   }
 
   Future<void> _finish() async {
@@ -72,11 +69,57 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
     context.go(AppRoutes.authLanding);
   }
 
+  bool _canAdvance(OnboardingState s) {
+    switch (_page) {
+      case 3: return s.primarySpecies != null;
+      case 4: return s.petCount != null;
+      case 5: return s.priorities.isNotEmpty;
+      case 6: return s.careTime != null;
+      case 7: return s.referralSource != null;
+      default: return true; // welcome slides + notifications
+    }
+  }
+
+  Widget _buildPage() {
+    switch (_page) {
+      case 0: return const _WelcomeSlide(
+        key: ValueKey('w0'),
+        eyebrow: 'Welcome',
+        title: 'A vault for every wag,\npurr & nuzzle.',
+        body: 'Track vaccines, vet visits, meds and milestones — all in one cozy place.',
+        lottiePath: 'assets/animations/dog_happy.json',
+        bgEnd: Color(0xFFF6DCC5),
+      );
+      case 1: return const _WelcomeSlide(
+        key: ValueKey('w1'),
+        eyebrow: 'Stay ahead',
+        title: 'Never miss a\nbooster again.',
+        body: 'Smart reminders for vaccines, refills and check-ups, tuned to your pet.',
+        lottiePath: 'assets/animations/cat_idle.json',
+        bgEnd: Color(0xFFDDE5DA),
+      );
+      case 2: return const _WelcomeSlide(
+        key: ValueKey('w2'),
+        eyebrow: 'Share & sync',
+        title: 'One tap to share\nwith your vet.',
+        body: 'Export beautiful PDF records or share a private link with sitters and vets.',
+        lottiePath: 'assets/animations/rabbit_idle.json',
+        bgEnd: Color(0xFFF4E6BD),
+      );
+      case 3: return const _QuestionSpecies(key: ValueKey('q3'));
+      case 4: return const _QuestionPetCount(key: ValueKey('q4'));
+      case 5: return const _QuestionPriorities(key: ValueKey('q5'));
+      case 6: return const _QuestionCareTime(key: ValueKey('q6'));
+      case 7: return const _QuestionReferral(key: ValueKey('q7'));
+      case 8: return const _QuestionNotifications(key: ValueKey('q8'));
+      default: return const SizedBox.shrink();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OnboardingBloc, OnboardingState>(
       builder: (context, s) {
-        final isFirstThree = s.currentPage < 3;
         return Scaffold(
           backgroundColor: AppColors.bone,
           body: Column(
@@ -89,147 +132,130 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _Logo(),
-                      Row(
-                        children: [
-                          if (s.currentPage > 0)
-                            GestureDetector(
-                              onTap: _back,
-                              child: Container(
-                                width: 36, height: 36,
-                                decoration: BoxDecoration(
-                                  color: AppColors.surface,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: AppColors.border),
-                                ),
-                                child: const Icon(LucideIcons.arrowLeft, size: 16, color: AppColors.ink),
-                              ),
-                            ),
-                          const SizedBox(width: 8),
-                          if (s.currentPage < _totalSteps - 1)
-                            TextButton(
-                              onPressed: _finish,
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
-                                minimumSize: const Size(40, 30),
-                              ),
-                              child: Text('Skip',
-                                  style: GoogleFonts.notoSans(
-                                      fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.stone)),
-                            ),
-                        ],
-                      ),
+                      const _Logo(),
+                      if (!_isLast)
+                        TextButton(
+                          onPressed: _finish,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            minimumSize: const Size(40, 32),
+                          ),
+                          child: Text('Skip',
+                              style: GoogleFonts.notoSans(
+                                  fontSize: 13, fontWeight: FontWeight.w600,
+                                  color: AppColors.stone)),
+                        ),
                     ],
                   ),
                 ),
               ),
 
-              // ── Progress bar (visible from question 1 onward) ──
-              if (!isFirstThree)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-                  child: Row(
-                    children: List.generate(_totalSteps - 3, (i) {
-                      final idx = i + 3;
-                      return Expanded(
-                        child: Container(
-                          margin: EdgeInsets.only(left: i > 0 ? 4 : 0),
-                          height: 3,
-                          decoration: BoxDecoration(
-                            color: idx <= s.currentPage ? AppColors.ink : AppColors.line,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
+              // ── Progress / dots indicator ────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                child: _isWelcome
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(3, (i) {
+                          final active = i == _page;
+                          return AnimatedContainer(
+                            duration: 250.ms,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            width: active ? 22 : 6, height: 6,
+                            decoration: BoxDecoration(
+                              color: active ? AppColors.ink : AppColors.line,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          );
+                        }),
+                      )
+                    : Row(
+                        children: List.generate(_totalSteps - 3, (i) {
+                          final idx = i + 3;
+                          return Expanded(
+                            child: Container(
+                              margin: EdgeInsets.only(left: i > 0 ? 4 : 0),
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: idx <= _page ? AppColors.ink : AppColors.line,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+              ),
 
               // ── Page body ────────────────────────────────────────
               Expanded(
-                child: PageView(
-                  controller: _controller,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onPageChanged: (i) =>
-                      context.read<OnboardingBloc>().add(OnboardingPageChanged(i)),
-                  children: [
-                    const _WelcomeSlide(
-                      eyebrow: 'Welcome',
-                      title: 'A vault for every wag,\npurr & nuzzle.',
-                      body: 'Track vaccines, vet visits, meds and milestones — all in one cozy place.',
-                      lottiePath: 'assets/animations/dog_happy.json',
-                      bgEnd: Color(0xFFF6DCC5),
-                    ),
-                    const _WelcomeSlide(
-                      eyebrow: 'Stay ahead',
-                      title: 'Never miss a\nbooster again.',
-                      body: 'Smart reminders for vaccines, refills and check-ups, tuned to your pet.',
-                      lottiePath: 'assets/animations/cat_idle.json',
-                      bgEnd: Color(0xFFDDE5DA),
-                    ),
-                    const _WelcomeSlide(
-                      eyebrow: 'Share & sync',
-                      title: 'One tap to share\nwith your vet.',
-                      body: 'Export beautiful PDF records or share a private link with sitters and vets.',
-                      lottiePath: 'assets/animations/rabbit_idle.json',
-                      bgEnd: Color(0xFFF4E6BD),
-                    ),
-                    _QuestionSpecies(),
-                    _QuestionPetCount(),
-                    _QuestionPriorities(),
-                    _QuestionCareTime(),
-                    _QuestionReferral(),
-                    _QuestionNotifications(),
-                  ],
+                child: AnimatedSwitcher(
+                  duration: 300.ms,
+                  switchInCurve: Curves.easeOut,
+                  switchOutCurve: Curves.easeIn,
+                  transitionBuilder: (child, anim) {
+                    return FadeTransition(
+                      opacity: anim,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.06, 0),
+                          end: Offset.zero,
+                        ).animate(anim),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _buildPage(),
                 ),
               ),
 
-              // ── Dots (only for welcome slides) ──
-              if (isFirstThree)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(3, (i) {
-                      final active = i == s.currentPage;
-                      return AnimatedContainer(
-                        duration: 250.ms,
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        width: active ? 22 : 6, height: 6,
-                        decoration: BoxDecoration(
-                          color: active ? AppColors.ink : AppColors.line,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-
-              // ── CTA ──
+              // ── Bottom CTA row: back (icon) + Continue ──
               SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
-                  child: SizedBox(
-                    width: double.infinity, height: 52,
-                    child: ElevatedButton(
-                      onPressed: _canAdvance(s) ? _next : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.ink,
-                        disabledBackgroundColor: AppColors.ink.withValues(alpha: 0.25),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            s.currentPage == _totalSteps - 1 ? 'Continue to sign up' : 'Continue',
-                            style: GoogleFonts.notoSans(fontSize: 15, fontWeight: FontWeight.w600),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
+                  child: Row(
+                    children: [
+                      if (_page > 0) ...[
+                        GestureDetector(
+                          onTap: _back,
+                          child: Container(
+                            width: 52, height: 52,
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: const Icon(LucideIcons.arrowLeft, size: 18, color: AppColors.ink),
                           ),
-                          const SizedBox(width: 6),
-                          const Icon(LucideIcons.arrowRight, size: 16),
-                        ],
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                      Expanded(
+                        child: SizedBox(
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: _canAdvance(s) ? _next : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.ink,
+                              disabledBackgroundColor: AppColors.ink.withValues(alpha: 0.25),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _isLast ? 'Continue to sign up' : 'Continue',
+                                  style: GoogleFonts.notoSans(
+                                      fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.bone),
+                                ),
+                                const SizedBox(width: 6),
+                                Icon(LucideIcons.arrowRight, size: 16, color: AppColors.bone),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -239,21 +265,11 @@ class _OnboardingFlowState extends State<_OnboardingFlow> {
       },
     );
   }
-
-  bool _canAdvance(OnboardingState s) {
-    switch (s.currentPage) {
-      case 3: return s.primarySpecies != null;
-      case 4: return s.petCount != null;
-      case 5: return s.priorities.isNotEmpty;
-      case 6: return s.careTime != null;
-      case 7: return s.referralSource != null;
-      default: return true;
-    }
-  }
 }
 
 // ─── Logo ────────────────────────────────────────────────────────────────
 class _Logo extends StatelessWidget {
+  const _Logo();
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -283,6 +299,7 @@ class _WelcomeSlide extends StatelessWidget {
   final Color bgEnd;
 
   const _WelcomeSlide({
+    super.key,
     required this.eyebrow,
     required this.title,
     required this.body,
@@ -384,12 +401,14 @@ class _QuestionFrame extends StatelessWidget {
           Expanded(child: child),
         ],
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0);
+    );
   }
 }
 
 // ─── Q1: species ─────────────────────────────────────────────────────────
 class _QuestionSpecies extends StatelessWidget {
+  const _QuestionSpecies({super.key});
+
   static const _opts = [
     ('dog',      'assets/animations/dog_idle.json',    '🐶', 'Dog'),
     ('cat',      'assets/animations/cat_idle.json',    '🐱', 'Cat'),
@@ -452,6 +471,7 @@ class _QuestionSpecies extends StatelessWidget {
 
 // ─── Q2: pet count ──────────────────────────────────────────────────────
 class _QuestionPetCount extends StatelessWidget {
+  const _QuestionPetCount({super.key});
   static const _opts = ['1', '2', '3', '4+'];
 
   @override
@@ -493,6 +513,8 @@ class _QuestionPetCount extends StatelessWidget {
 
 // ─── Q3: priorities (multi-select) ───────────────────────────────────────
 class _QuestionPriorities extends StatelessWidget {
+  const _QuestionPriorities({super.key});
+
   static const _opts = [
     ('vaccines',  LucideIcons.syringe,         'Vaccines'),
     ('meds',      LucideIcons.pill,            'Medications'),
@@ -508,7 +530,7 @@ class _QuestionPriorities extends StatelessWidget {
     return _QuestionFrame(
       eyebrow: 'Step 3 of 6',
       question: 'What matters\nmost to you?',
-      helper: 'Pick a few — we’ll arrange your home around them.',
+      helper: "Pick a few — we’ll arrange your home around them.",
       child: ListView(
         children: [
           Wrap(
@@ -549,6 +571,7 @@ class _QuestionPriorities extends StatelessWidget {
 
 // ─── Q4: care time ──────────────────────────────────────────────────────
 class _QuestionCareTime extends StatelessWidget {
+  const _QuestionCareTime({super.key});
   static const _opts = [
     ('morning',   LucideIcons.sunrise,  'Morning',   'Before 11am'),
     ('afternoon', LucideIcons.sun,      'Afternoon', '11am – 5pm'),
@@ -618,10 +641,11 @@ class _QuestionCareTime extends StatelessWidget {
 
 // ─── Q5: referral ───────────────────────────────────────────────────────
 class _QuestionReferral extends StatelessWidget {
+  const _QuestionReferral({super.key});
   static const _opts = [
-    ('app_store',  LucideIcons.appWindow,   'App Store'),
-    ('friend',     LucideIcons.users,       'Friend or family'),
-    ('vet',        LucideIcons.stethoscope, 'My vet recommended'),
+    ('app_store',  LucideIcons.appWindow,         'App Store'),
+    ('friend',     LucideIcons.users,             'Friend or family'),
+    ('vet',        LucideIcons.stethoscope,       'My vet recommended'),
     ('social',     LucideIcons.share2,            'Social media'),
     ('search',     LucideIcons.search,            'Google search'),
     ('other',      LucideIcons.circleQuestionMark, 'Somewhere else'),
@@ -633,7 +657,7 @@ class _QuestionReferral extends StatelessWidget {
     return _QuestionFrame(
       eyebrow: 'Step 5 of 6',
       question: 'How did you\nfind PawVault?',
-      helper: 'Helps us figure out what’s actually working — thank you.',
+      helper: "Helps us figure out what’s actually working — thank you.",
       child: ListView.separated(
         itemCount: _opts.length,
         separatorBuilder: (_, __) => const SizedBox(height: 6),
@@ -673,6 +697,8 @@ class _QuestionReferral extends StatelessWidget {
 
 // ─── Q6: notifications ──────────────────────────────────────────────────
 class _QuestionNotifications extends StatelessWidget {
+  const _QuestionNotifications({super.key});
+
   @override
   Widget build(BuildContext context) {
     final enabled = context.watch<OnboardingBloc>().state.notificationsEnabled;
@@ -683,7 +709,6 @@ class _QuestionNotifications extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Pretty mock notification card
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -723,10 +748,7 @@ class _QuestionNotifications extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () async {
-              context.read<OnboardingBloc>().add(const OnboardingNotificationsToggled(true));
-              // TODO: request platform notification permission on auth-done screen
-            },
+            onTap: () => context.read<OnboardingBloc>().add(const OnboardingNotificationsToggled(true)),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(
