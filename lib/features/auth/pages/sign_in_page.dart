@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/utils/paw_snackbar.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -41,22 +42,14 @@ class _SignInViewState extends State<_SignInView> {
 
   bool get _valid => _emailCtrl.text.contains('@') && _passCtrl.text.length >= 6;
 
-  void _showError(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg, style: const TextStyle(color: Colors.white, fontSize: 13)),
-      backgroundColor: AppColors.ink,
-      behavior: SnackBarBehavior.floating,
-      margin: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, PawAuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) context.go(AppRoutes.home);
-        if (state is AuthFailure) _showError(context, state.message);
+        if (state is AuthFailure) {
+          showPawSnack(context, message: state.message, kind: PawSnackKind.error);
+        }
       },
       builder: (context, state) {
         final loading = state is AuthLoading;

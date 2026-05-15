@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/router/app_router.dart';
+import '../../core/assets/app_icons.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -54,8 +55,8 @@ class _BottomNav extends StatelessWidget {
                         )),
                         Expanded(child: _NavItem(
                           icon: Icons.folder_outlined, label: 'Records',
-                          isActive: false,
-                          onTap: () {},
+                          isActive: location.contains('/records'),
+                          onTap: () => context.go(AppRoutes.recordsHub),
                         )),
                         const Expanded(child: SizedBox()), // FAB slot
                         Expanded(child: _NavItem(
@@ -65,8 +66,8 @@ class _BottomNav extends StatelessWidget {
                         )),
                         Expanded(child: _NavItem(
                           icon: Icons.person_outline_rounded, label: 'Profile',
-                          isActive: false,
-                          onTap: () {},
+                          isActive: location == AppRoutes.profile,
+                          onTap: () => context.go(AppRoutes.profile),
                         )),
                       ],
                     ),
@@ -90,7 +91,12 @@ class _BottomNav extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.auto_awesome, color: AppColors.bone, size: 22),
+                          child: const Center(
+                            child: AppIcon(
+                              AppIcons.logoMarkPawBone,
+                              size: 30,
+                            ),
+                          ),
                         ),
                       ),
                     ),

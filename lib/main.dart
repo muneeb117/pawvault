@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_constants.dart';
 import 'core/router/router_helpers.dart';
+import 'core/notifications/notifications_service.dart';
 import 'app.dart';
 
 void main() async {
@@ -15,6 +16,9 @@ void main() async {
 
   // Hydrate cached flags synchronously available to the router guard.
   await AppFlags.hydrate();
+
+  // Initialise local notifications (no permission prompt yet).
+  await NotificationsService.instance.init();
 
   try {
     await Supabase.initialize(

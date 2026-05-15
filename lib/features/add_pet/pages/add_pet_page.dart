@@ -10,6 +10,7 @@ import '../bloc/add_pet_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/date_picker.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/utils/paw_snackbar.dart';
 import '../../../data/models/pet_model.dart';
 import '../../../data/repositories/pet_repository.dart';
 import '../../../shared/widgets/pet_avatar_widget.dart';
@@ -37,22 +38,7 @@ class _AddPetView extends StatelessWidget {
       listener: (context, state) {
         if (state.status == AddPetStatus.success) context.go(AppRoutes.home);
         if (state.status == AddPetStatus.failure && state.error != null) {
-          final raw = state.error!;
-          final friendly = raw.contains('schema cache') || raw.contains('public.pets')
-              ? "Database isn't set up yet. Run supabase/schema.sql in your Supabase SQL Editor."
-              : raw.contains('row-level security') || raw.contains('RLS')
-                  ? "Couldn't save — sign-in required. Enable Anonymous Auth in Supabase."
-                  : raw.length > 120 ? '${raw.substring(0, 120)}…' : raw;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(friendly, style: const TextStyle(color: Colors.white, fontSize: 13)),
-              backgroundColor: AppColors.ink,
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              duration: const Duration(seconds: 5),
-            ),
-          );
+          showPawError(context, state.error!);
         }
       },
       builder: (context, state) {

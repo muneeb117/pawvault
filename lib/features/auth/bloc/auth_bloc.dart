@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import '../../../core/utils/error_messages.dart';
 import '../../../data/repositories/auth_repository.dart';
 
 part 'auth_event.dart';
@@ -22,7 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, PawAuthState> {
       await _repo.signInWithEmail(email: event.email, password: event.password);
       emit(AuthSuccess());
     } catch (e) {
-      emit(AuthFailure(_friendly(e)));
+      emit(AuthFailure(friendlyError(e)));
     }
   }
 
@@ -33,7 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, PawAuthState> {
           email: event.email, password: event.password, fullName: event.fullName);
       emit(AuthSuccess());
     } catch (e) {
-      emit(AuthFailure(_friendly(e)));
+      emit(AuthFailure(friendlyError(e)));
     }
   }
 
@@ -49,7 +50,7 @@ class AuthBloc extends Bloc<AuthEvent, PawAuthState> {
       await _repo.signInWithGoogle();
       emit(AuthSuccess());
     } catch (e) {
-      emit(AuthFailure(_friendly(e)));
+      emit(AuthFailure(friendlyError(e)));
     }
   }
 
@@ -60,21 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, PawAuthState> {
       await _repo.signInWithApple();
       emit(AuthSuccess());
     } catch (e) {
-      emit(AuthFailure(_friendly(e)));
+      emit(AuthFailure(friendlyError(e)));
     }
-  }
-
-  String _friendly(Object e) {
-    final raw = e.toString();
-    if (raw.contains('cancelled')) return 'Sign-in cancelled.';
-    if (raw.contains('Invalid login')) return 'Wrong email or password.';
-    if (raw.contains('already registered') || raw.contains('User already')) {
-      return 'That email is already in use. Try signing in.';
-    }
-    if (raw.contains('Password should be')) return 'Password must be at least 6 characters.';
-    if (raw.contains('email_address_invalid') || raw.contains('Invalid email')) {
-      return "That email doesn't look right.";
-    }
-    return raw.length > 140 ? '${raw.substring(0, 140)}…' : raw;
   }
 }

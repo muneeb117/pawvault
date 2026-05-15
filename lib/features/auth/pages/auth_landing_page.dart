@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/assets/app_assets.dart';
+import '../../../core/assets/app_icons.dart';
+import '../../../core/utils/paw_snackbar.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/user_preferences_repository.dart';
 import '../../../data/models/user_preferences_model.dart';
@@ -57,14 +59,8 @@ class _AuthLandingView extends StatelessWidget {
       listener: (context, state) {
         if (state is AuthSuccess) _savePrefsAndGo(context);
         if (state is AuthFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(state.message,
-                style: const TextStyle(color: Colors.white, fontSize: 13)),
-            backgroundColor: AppColors.ink,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ));
+          // AuthBloc already runs the error through friendlyError().
+          showPawSnack(context, message: state.message, kind: PawSnackKind.error);
         }
       },
       builder: (context, state) {
@@ -81,12 +77,7 @@ class _AuthLandingView extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: Row(
                       children: [
-                        Container(
-                          width: 26, height: 26,
-                          decoration: BoxDecoration(
-                              color: AppColors.ink, borderRadius: BorderRadius.circular(7)),
-                          child: const Icon(LucideIcons.pawPrint, color: AppColors.bone, size: 14),
-                        ),
+                        const AppIcon(AppIcons.logoMarkPrimary, size: 28),
                         const SizedBox(width: 7),
                         Text('PawVault',
                             style: GoogleFonts.bricolageGrotesque(
@@ -158,13 +149,12 @@ class _AuthLandingView extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Apple — uses assets/icons/auth/apple.png if present
+                  // Apple — brand SVG
                   _AuthButton(
-                    iconWidget: const AppImage(
-                      assetPath: AppAssets.appleLogo,
-                      size: 18,
+                    iconWidget: const AppIcon(
+                      AppIcons.authApple,
+                      size: 18, color: AppColors.bone,
                       fallback: LucideIcons.apple,
-                      color: AppColors.bone,
                     ),
                     label: 'Continue with Apple',
                     bg: AppColors.ink, fg: AppColors.bone,
@@ -173,14 +163,11 @@ class _AuthLandingView extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // Google — uses assets/icons/auth/google.png if present, falls back to painted glyph
+                  // Google — brand SVG
                   _AuthButton(
-                    iconWidget: SizedBox(
-                      width: 18, height: 18,
-                      child: Image.asset(
-                        AppAssets.googleLogo,
-                        errorBuilder: (_, __, ___) => const _GoogleGlyph(),
-                      ),
+                    iconWidget: const AppIcon(
+                      AppIcons.authGoogle,
+                      size: 18,
                     ),
                     label: 'Continue with Google',
                     bg: AppColors.surface, fg: AppColors.ink,

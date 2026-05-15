@@ -4,6 +4,8 @@ import '../../../data/models/pet_model.dart';
 import '../../../data/models/care_event_model.dart';
 import '../../../data/models/vaccine_model.dart';
 import '../../../data/repositories/pet_repository.dart';
+import '../../../data/repositories/vaccine_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -18,40 +20,55 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeCareEventToggled>(_onCareEventToggled);
   }
 
+  Future<Vaccine?> _fetchNextVaccine(String petId) async {
+    try {
+      final repo = VaccineRepository(Supabase.instance.client);
+      final list = await repo.getVaccines(petId);
+      if (list.isEmpty) return null;
+      final upcoming = list.where((v) => v.status != VaccineStatus.overdue).toList()
+        ..sort((a, b) => a.nextDue.compareTo(b.nextDue));
+      if (upcoming.isNotEmpty) return upcoming.first;
+      // Otherwise return the most-overdue (smallest nextDue)
+      list.sort((a, b) => a.nextDue.compareTo(b.nextDue));
+      return list.first;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _onLoaded(HomeLoaded event, Emitter<HomeState> emit) async {
     emit(HomeLoading());
-
     if (event.userId.isEmpty) {
       emit(HomeNoPets());
       return;
     }
-
     try {
       final pets = await _petRepo.getPets(event.userId);
       if (pets.isEmpty) {
         emit(HomeNoPets());
         return;
       }
+      final active = pets.first;
+      final nextV = await _fetchNextVaccine(active.id);
       emit(HomeReady(
         pets: pets,
-        activePet: pets.first,
-        todayEvents: _todayEventsFor(pets.first.id),
-        upNextVaccine: null,
+        activePet: active,
+        todayEvents: const [],
+        upNextVaccine: nextV,
       ));
     } catch (e) {
-      // Show the empty state rather than a giant error banner.
-      // Real error is logged for debugging.
       // ignore: avoid_print
       print('HomeBloc load error: $e');
       emit(HomeNoPets());
     }
   }
 
-  void _onPetSwitched(HomePetSwitched event, Emitter<HomeState> emit) {
+  Future<void> _onPetSwitched(HomePetSwitched event, Emitter<HomeState> emit) async {
     if (state is! HomeReady) return;
     final s = state as HomeReady;
     final pet = s.pets.firstWhere((p) => p.id == event.petId, orElse: () => s.activePet);
-    emit(s.copyWith(activePet: pet, todayEvents: _todayEventsFor(pet.id)));
+    final nextV = await _fetchNextVaccine(pet.id);
+    emit(s.copyWith(activePet: pet, upNextVaccine: nextV, clearUpNext: nextV == null));
   }
 
   void _onMoodToggled(HomeAvatarMoodToggled event, Emitter<HomeState> emit) {
@@ -74,7 +91,4 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }).toList();
     emit(s.copyWith(todayEvents: updated));
   }
-
-  // Until care_events are wired to Supabase, return empty.
-  List<CareEvent> _todayEventsFor(String petId) => const [];
 }

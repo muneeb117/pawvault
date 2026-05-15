@@ -10,6 +10,7 @@ import '../../../core/router/app_router.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/user_preferences_repository.dart';
 import '../../../data/models/user_preferences_model.dart';
+import '../../../core/utils/paw_snackbar.dart';
 import '../bloc/auth_bloc.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -71,22 +72,14 @@ class _SignUpViewState extends State<_SignUpView> {
       _emailCtrl.text.contains('@') &&
       _passCtrl.text.length >= 6;
 
-  void _showError(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg, style: const TextStyle(color: Colors.white, fontSize: 13)),
-      backgroundColor: AppColors.ink,
-      behavior: SnackBarBehavior.floating,
-      margin: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, PawAuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) _savePrefsAndGo();
-        if (state is AuthFailure) _showError(context, state.message);
+        if (state is AuthFailure) {
+          showPawSnack(context, message: state.message, kind: PawSnackKind.error);
+        }
       },
       builder: (context, state) {
         final loading = state is AuthLoading;

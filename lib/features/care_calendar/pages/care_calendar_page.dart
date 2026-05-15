@@ -1,7 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/pet_model.dart';
+import '../../../data/models/vaccine_model.dart';
+import '../../../data/models/medication_model.dart';
+import '../../../data/repositories/vaccine_repository.dart';
+import '../../../data/repositories/medication_repository.dart';
+import '../../../shared/widgets/pet_switcher.dart';
+import '../../pets/cubit/active_pet_cubit.dart';
+
+enum _EventKind { vaccine, medication }
+
+class _CareEvent {
+  final _EventKind kind;
+  final DateTime at;
+  final String title;
+  final String subtitle;
+  const _CareEvent({
+    required this.kind,
+    required this.at,
+    required this.title,
+    required this.subtitle,
+  });
+
+  Color get accent => switch (kind) {
+        _EventKind.vaccine    => AppColors.clay500,
+        _EventKind.medication => AppColors.rose500,
+      };
+  Color get tint => switch (kind) {
+        _EventKind.vaccine    => AppColors.clay50,
+        _EventKind.medication => AppColors.rose50,
+      };
+  IconData get icon => switch (kind) {
+        _EventKind.vaccine    => LucideIcons.syringe,
+        _EventKind.medication => LucideIcons.pill,
+      };
+}
 
 class CareCalendarPage extends StatefulWidget {
   const CareCalendarPage({super.key});
@@ -14,25 +53,91 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
   DateTime _displayedMonth = DateTime(DateTime.now().year, DateTime.now().month);
   DateTime _selected = DateTime.now();
 
-  late final Map<int, List<Color>> _events = {
-    1: [AppColors.rose500],
-    8: [AppColors.sage500],
-    12: [AppColors.rose500, AppColors.ochre500],
-    DateTime.now().day: [AppColors.rose500, AppColors.sage500, AppColors.ochre500],
-    18: [AppColors.sage500],
-    22: [AppColors.clay500],
-    27: [AppColors.clay500, AppColors.rose500],
-    30: [AppColors.sage500],
-  };
+  String? _loadedPetId;
+  bool _loading = true;
+  final List<_CareEvent> _events = [];
 
   static const _weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   static const _monthNames = ['January','February','March','April','May','June',
     'July','August','September','October','November','December'];
 
+  Future<void> _loadEvents(Pet pet) async {
+    if (_loadedPetId == pet.id && !_loading) return;
+    setState(() {
+      _loading = true;
+      _loadedPetId = pet.id;
+    });
+
+    final all = <_CareEvent>[];
+    try {
+      final vaccines = await VaccineRepository(Supabase.instance.client).getVaccines(pet.id);
+      for (final Vaccine v in vaccines) {
+        all.add(_CareEvent(
+          kind: _EventKind.vaccine, at: v.nextDue,
+          title: '${v.name} booster',
+          subtitle: 'Vaccine · ${v.dueLabelShort}',
+        ));
+      }
+    } catch (_) {}
+    try {
+      final meds = await MedicationRepository(Supabase.instance.client).getMedications(pet.id);
+      for (final Medication m in meds) {
+        if (m.nextDoseAt != null) {
+          all.add(_CareEvent(
+            kind: _EventKind.medication, at: m.nextDoseAt!,
+            title: m.name,
+            subtitle: '${m.frequencyLabel} · ${m.dosage}',
+          ));
+        }
+      }
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() {
+        _events
+          ..clear()
+          ..addAll(all);
+        _loading = false;
+      });
+    }
+  }
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  List<_CareEvent> _eventsOn(DateTime d) =>
+      _events.where((e) => _sameDay(e.at, d)).toList();
+
+  /// Up to 3 unique-kind dots per day for the grid display.
+  List<Color> _dotsFor(DateTime d) {
+    final kinds = <_EventKind>{};
+    final dots = <Color>[];
+    for (final e in _eventsOn(d)) {
+      if (kinds.add(e.kind) && dots.length < 3) dots.add(e.accent);
+    }
+    return dots;
+  }
+
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<ActivePetCubit, ActivePetState>(
+      listenWhen: (a, b) => a.active?.id != b.active?.id,
+      listener: (_, ap) {
+        if (ap.active != null) _loadEvents(ap.active!);
+      },
+      builder: (context, ap) {
+        // Initial load when the active pet first appears.
+        if (ap.active != null && _loadedPetId != ap.active!.id) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _loadEvents(ap.active!));
+        }
+        return _buildScaffold(context, ap);
+      },
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, ActivePetState ap) {
     final today = DateTime.now();
-    final isToday = _selected.year == today.year && _selected.month == today.month && _selected.day == today.day;
+    final selectedEvents = _eventsOn(_selected);
 
     return Scaffold(
       backgroundColor: AppColors.bone,
@@ -40,31 +145,32 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
         bottom: false,
         child: CustomScrollView(
           slivers: [
+            // ── Top bar
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                 child: Row(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('BISCUIT',
-                            style: GoogleFonts.inter(
-                                fontSize: 10, fontWeight: FontWeight.w600,
-                                color: AppColors.stone2, letterSpacing: 0.08 * 10)),
-                        Text('Care',
+                    const SizedBox(width: 36),
+                    Expanded(
+                      child: Center(
+                        child: Text('Care',
                             style: GoogleFonts.bricolageGrotesque(
                                 fontSize: 22, fontWeight: FontWeight.w600,
                                 color: AppColors.ink, letterSpacing: -0.5)),
-                      ],
+                      ),
                     ),
-                    const Spacer(),
-                    _IconBtn(child: const Icon(Icons.add_rounded, size: 18, color: AppColors.ink)),
+                    _IconBtn(child: const Icon(LucideIcons.plus, size: 18, color: AppColors.ink)),
                   ],
                 ),
               ),
             ),
 
+            // ── Pet switcher
+            const SliverToBoxAdapter(child: PetSwitcher()),
+            const SliverToBoxAdapter(child: SizedBox(height: 6)),
+
+            // ── Month header
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -72,16 +178,18 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _IconBtn(
-                      onTap: () => setState(() => _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month - 1)),
-                      child: const Icon(Icons.chevron_left_rounded, size: 20, color: AppColors.ink),
+                      onTap: () => setState(() =>
+                          _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month - 1)),
+                      child: const Icon(LucideIcons.chevronLeft, size: 20, color: AppColors.ink),
                     ),
                     Text('${_monthNames[_displayedMonth.month - 1]} ${_displayedMonth.year}',
                         style: GoogleFonts.bricolageGrotesque(
                             fontSize: 22, fontWeight: FontWeight.w600,
                             color: AppColors.ink, letterSpacing: -0.5)),
                     _IconBtn(
-                      onTap: () => setState(() => _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month + 1)),
-                      child: const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.ink),
+                      onTap: () => setState(() =>
+                          _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month + 1)),
+                      child: const Icon(LucideIcons.chevronRight, size: 20, color: AppColors.ink),
                     ),
                   ],
                 ),
@@ -95,8 +203,7 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
                   children: _weekdayLabels.map((d) => Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Text(d,
-                          textAlign: TextAlign.center,
+                      child: Text(d, textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                               fontSize: 10, fontWeight: FontWeight.w600,
                               color: AppColors.stone2, letterSpacing: 0.08 * 10)),
@@ -108,9 +215,10 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
 
             SliverToBoxAdapter(child: _buildDayGrid(today)),
 
+            // ── Selected day summary
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -120,44 +228,40 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
                   ),
                   child: Row(
                     children: [
+                      Container(
+                        width: 40, height: 40,
+                        decoration: BoxDecoration(
+                          color: selectedEvents.isEmpty ? AppColors.sage50 : AppColors.clay50,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          selectedEvents.isEmpty ? LucideIcons.check : LucideIcons.calendar,
+                          color: selectedEvents.isEmpty ? AppColors.sage600 : AppColors.clay600,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              isToday
-                                  ? 'TODAY · ${_monthNames[_selected.month - 1].substring(0, 3).toUpperCase()} ${_selected.day}'
-                                  : '${_monthNames[_selected.month - 1].substring(0, 3).toUpperCase()} ${_selected.day}',
-                              style: GoogleFonts.bricolageGrotesque(
-                                  fontSize: 12, fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.06 * 12, color: AppColors.clay500),
+                              _sameDay(_selected, today)
+                                  ? 'TODAY · ${DateFormat('MMM d').format(_selected).toUpperCase()}'
+                                  : DateFormat('EEE, MMM d').format(_selected).toUpperCase(),
+                              style: GoogleFonts.inter(
+                                  fontSize: 10, fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.06 * 10, color: AppColors.stone2),
                             ),
                             const SizedBox(height: 2),
-                            Text('4 events · 2 done',
-                                style: GoogleFonts.bricolageGrotesque(
-                                    fontSize: 22, fontWeight: FontWeight.w600,
-                                    color: AppColors.ink, letterSpacing: -0.6, height: 1)),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 52, height: 52,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 52, height: 52,
-                              child: CircularProgressIndicator(
-                                value: 0.5,
-                                backgroundColor: AppColors.line,
-                                valueColor: AlwaysStoppedAnimation(AppColors.clay500),
-                                strokeWidth: 4,
-                                strokeCap: StrokeCap.round,
-                              ),
+                            Text(
+                              selectedEvents.isEmpty
+                                  ? 'Nothing scheduled'
+                                  : '${selectedEvents.length} event${selectedEvents.length == 1 ? '' : 's'}',
+                              style: GoogleFonts.bricolageGrotesque(
+                                  fontSize: 18, fontWeight: FontWeight.w600,
+                                  color: AppColors.ink, letterSpacing: -0.5, height: 1),
                             ),
-                            Text('50%',
-                                style: GoogleFonts.inter(
-                                    fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink)),
                           ],
                         ),
                       ),
@@ -169,25 +273,74 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
                 child: Text('SCHEDULE',
-                    style: GoogleFonts.bricolageGrotesque(
-                        fontSize: 12, fontWeight: FontWeight.w500,
-                        letterSpacing: 0.06 * 12, color: AppColors.stone)),
+                    style: GoogleFonts.inter(
+                        fontSize: 10, fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2, color: AppColors.stone2)),
               ),
             ),
 
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (_, i) => _ScheduleRow(item: _schedule[i]),
-                  childCount: _schedule.length,
+            if (_loading)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
+                  child: Center(child: CircularProgressIndicator(
+                      color: AppColors.clay500, strokeWidth: 2)),
+                ),
+              )
+            else if (selectedEvents.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
+                  child: _emptyState(),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => _EventRow(event: selectedEvents[i]),
+                    childCount: selectedEvents.length,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _emptyState() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(color: AppColors.clay50, borderRadius: BorderRadius.circular(10)),
+            child: const Icon(LucideIcons.calendarPlus, size: 18, color: AppColors.clay600),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('No events on ${DateFormat('MMM d').format(_selected)}',
+                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.ink)),
+                const SizedBox(height: 2),
+                Text('Vaccines and meds you add show up here.',
+                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone, height: 1.4)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -203,9 +356,9 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
     }
     for (int d = 1; d <= daysInMonth; d++) {
       final date = DateTime(_displayedMonth.year, _displayedMonth.month, d);
-      final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
-      final isSelected = date.year == _selected.year && date.month == _selected.month && date.day == _selected.day;
-      final dayEvents = _events[d] ?? const <Color>[];
+      final isToday = _sameDay(date, today);
+      final isSelected = _sameDay(date, _selected);
+      final dots = _dotsFor(date);
 
       cells.add(GestureDetector(
         onTap: () => setState(() => _selected = date),
@@ -226,18 +379,16 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
                     color: isSelected ? AppColors.bone : AppColors.ink,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   )),
-              if (dayEvents.isNotEmpty) ...[
+              if (dots.isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: dayEvents.take(3).map((c) => Padding(
+                  children: dots.map((c) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 1),
                     child: Container(
                       width: 4, height: 4,
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.clay200 : c,
-                        shape: BoxShape.circle,
-                      ),
+                          color: isSelected ? AppColors.clay200 : c, shape: BoxShape.circle),
                     ),
                   )).toList(),
                 ),
@@ -259,105 +410,50 @@ class _CareCalendarPageState extends State<CareCalendarPage> {
       ),
     );
   }
-
-  static final _schedule = [
-    _ScheduleItem('8:00 AM', 'Heartgard Plus', 'Medication',
-        Icons.medication_outlined, AppColors.rose500, AppColors.rose50, true),
-    _ScheduleItem('9:30 AM', 'Morning walk', 'Activity',
-        Icons.directions_walk_rounded, AppColors.sage500, AppColors.sage50, true),
-    _ScheduleItem('1:00 PM', 'Lunch', 'Meal',
-        Icons.restaurant_outlined, AppColors.ochre500, AppColors.ochre50, false),
-    _ScheduleItem('6:00 PM', 'Cosequin DS', 'Medication',
-        Icons.medication_outlined, AppColors.rose500, AppColors.rose50, false),
-  ];
 }
 
-class _ScheduleItem {
-  final String time, title, kind;
-  final IconData icon;
-  final Color accent, tint;
-  final bool done;
-  _ScheduleItem(this.time, this.title, this.kind, this.icon, this.accent, this.tint, this.done);
-}
-
-class _ScheduleRow extends StatelessWidget {
-  final _ScheduleItem item;
-  const _ScheduleRow({required this.item});
+class _EventRow extends StatelessWidget {
+  final _CareEvent event;
+  const _EventRow({required this.event});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: IntrinsicHeight(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
+        ),
         child: Row(
           children: [
-            SizedBox(
-              width: 50,
+            Container(
+              width: 38, height: 38,
+              decoration: BoxDecoration(color: event.tint, borderRadius: BorderRadius.circular(10)),
+              child: Icon(event.icon, size: 18, color: event.accent),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(item.time.split(' ')[0],
+                  Text(event.title,
                       style: GoogleFonts.inter(
-                          fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.stone)),
-                  Text(item.time.split(' ').length > 1 ? item.time.split(' ')[1] : '',
-                      style: GoogleFonts.inter(fontSize: 10, color: AppColors.stone2)),
+                          fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.ink)),
+                  Text(event.subtitle,
+                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone)),
                 ],
               ),
             ),
-            const SizedBox(width: 4),
-            Container(
-              width: 2,
-              decoration: BoxDecoration(
-                color: item.done ? item.accent.withValues(alpha: 0.35) : item.accent,
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36, height: 36,
-                      decoration: BoxDecoration(
-                        color: item.done ? AppColors.neutral100 : item.tint,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(item.icon, size: 16,
-                          color: item.done ? AppColors.stone2 : item.accent),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(item.title,
-                              style: GoogleFonts.inter(
-                                fontSize: 13, fontWeight: FontWeight.w600,
-                                color: item.done ? AppColors.stone : AppColors.ink,
-                                decoration: item.done ? TextDecoration.lineThrough : null,
-                                decorationColor: AppColors.stone,
-                              )),
-                          Text('${item.time} · ${item.kind}',
-                              style: GoogleFonts.inter(fontSize: 11, color: AppColors.stone2)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            Text(DateFormat('h:mm a').format(event.at),
+                style: GoogleFonts.inter(
+                    fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.stone)),
           ],
         ),
       ),
-    ).animate().fadeIn(duration: 350.ms).slideX(begin: 0.05, end: 0);
+    ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.05, end: 0);
   }
 }
 
@@ -365,20 +461,17 @@ class _IconBtn extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
   const _IconBtn({required this.child, this.onTap});
-
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36, height: 36,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Center(child: child),
         ),
-        child: Center(child: child),
-      ),
-    );
-  }
+      );
 }

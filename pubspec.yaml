@@ -46,6 +46,12 @@ dependencies:
 
   # Icons
   lucide_icons_flutter: ^3.0.0
+  flutter_svg: ^2.0.10+1
+
+  # Local notifications
+  flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
+  permission_handler: ^11.3.1
 
   cupertino_icons: ^1.0.8
 
@@ -53,6 +59,16 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/brand/app-icons/ios-1024.png"
+  adaptive_icon_background: "#B85C32"
+  adaptive_icon_foreground: "assets/brand/app-icons/android-maskable-1024.png"
+  min_sdk_android: 21
 
 flutter:
   uses-material-design: true
@@ -65,3 +81,8 @@ flutter:
     - assets/icons/care/
     - assets/icons/auth/
     - assets/icons/onboarding/
+    - assets/brand/icons/app/
+    - assets/brand/icons/auth/
+    - assets/brand/logos/
+    - assets/brand/animated/
+    - assets/brand/app-icons/

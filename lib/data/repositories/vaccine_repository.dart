@@ -5,6 +5,20 @@ class VaccineRepository {
   final SupabaseClient _client;
   VaccineRepository(this._client);
 
+  /// Realtime stream — requires the `vaccines` table to be in the
+  /// `supabase_realtime` publication (see schema.sql).
+  Stream<List<Vaccine>> watchVaccines(String petId) {
+    return _client
+        .from('vaccines')
+        .stream(primaryKey: ['id'])
+        .eq('pet_id', petId)
+        .map((rows) {
+          final list = rows.map((e) => Vaccine.fromJson(e)).toList();
+          list.sort((a, b) => a.nextDue.compareTo(b.nextDue));
+          return list;
+        });
+  }
+
   Future<List<Vaccine>> getVaccines(String petId) async {
     final data = await _client
         .from('vaccines')

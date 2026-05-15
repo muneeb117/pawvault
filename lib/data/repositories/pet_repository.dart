@@ -6,6 +6,16 @@ class PetRepository {
   final SupabaseClient _client;
   PetRepository(this._client);
 
+  Future<Pet?> getPetById(String petId) async {
+    try {
+      final data = await _client.from('pets').select().eq('id', petId).maybeSingle();
+      if (data == null) return null;
+      return Pet.fromJson(data);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<List<Pet>> getPets(String userId) async {
     final data = await _client
         .from('pets')

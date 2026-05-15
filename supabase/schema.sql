@@ -74,6 +74,23 @@ create table if not exists health_records (
   created_at    timestamptz default now()
 );
 
+create table if not exists documents (
+  id              text primary key,
+  pet_id          text references pets on delete cascade not null,
+  type            text not null,          -- vaccine_card | lab_report | prescription | insurance | receipt | other
+  title           text not null,
+  document_url    text not null,
+  thumbnail_url   text,
+  notes           text,
+  captured_text   text,                   -- raw OCR/Vision output
+  captured_data   jsonb default '{}'::jsonb,  -- structured: dates, meds, clinic, etc.
+  is_image        boolean default true,
+  created_at      timestamptz default now()
+);
+
+create index if not exists idx_documents_pet on documents(pet_id);
+create index if not exists idx_documents_type on documents(type);
+
 create table if not exists user_preferences (
   user_id              uuid primary key references auth.users on delete cascade,
   display_name         text,
@@ -113,6 +130,14 @@ drop policy if exists "Users own their prefs" on user_preferences;
 create policy "Users own their prefs" on user_preferences
   for all using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+alter table documents enable row level security;
+
+drop policy if exists "Pets own their documents" on documents;
+create policy "Pets own their documents" on documents
+  for all using (exists (
+    select 1 from pets where pets.id = documents.pet_id and pets.user_id = auth.uid()
+  ));
 
 alter table pets           enable row level security;
 alter table vaccines       enable row level security;
@@ -157,6 +182,20 @@ create policy "Pets own their events" on care_events
   for all using (exists (
     select 1 from pets where pets.id = care_events.pet_id and pets.user_id = auth.uid()
   ));
+
+-- ── Realtime: add tables to the supabase_realtime publication ────────────
+-- Lets the Flutter app subscribe via `.stream()` for live updates.
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and tablename = 'pets'
+  ) then
+    alter publication supabase_realtime add table pets, vaccines, medications,
+      dose_logs, health_records, care_events, user_preferences, documents;
+  end if;
+end $$;
 
 -- ── Storage bucket for pet photos ────────────────────────────────────────
 

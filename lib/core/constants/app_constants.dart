@@ -3,6 +3,19 @@ abstract class AppConstants {
   static const supabaseUrl = 'https://ntmuoxcfxsdydhxoxbrt.supabase.co';
   static const supabaseAnonKey = 'sb_publishable_Xh0bHdjJJh2W6n38N6wR6g_5h4wO-Xj';
 
+  // OpenAI (for AI Assistant + document extraction).
+  // Provide your key via --dart-define so it never lands in source control:
+  //
+  //   flutter run --dart-define=OPENAI_API_KEY=sk-...your-key...
+  //
+  // In Android Studio: Edit Configurations → Additional run args →
+  //   --dart-define=OPENAI_API_KEY=sk-...
+  //
+  // Get a key at https://platform.openai.com/api-keys
+  static const openAiApiKey =
+      String.fromEnvironment('OPENAI_API_KEY', defaultValue: '');
+  static const openAiModel  = 'gpt-4o-mini';
+
   // Padding
   static const double paddingXS = 4;
   static const double paddingS = 8;

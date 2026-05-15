@@ -3,8 +3,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/pet_model.dart';
+import '../../../data/repositories/pet_repository.dart';
 import '../../../shared/widgets/pet_avatar_widget.dart';
 
 class PetProfilePage extends StatefulWidget {
@@ -19,20 +22,8 @@ class _PetProfilePageState extends State<PetProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabs;
   AvatarMood _mood = AvatarMood.happy;
-
-  // Demo data — replace with BLoC fetch
-  final _pet = Pet(
-    id: '1', name: 'Biscuit', species: PetSpecies.dog,
-    breed: 'Golden Retriever', dateOfBirth: DateTime(2022, 12, 14),
-    gender: 'Male', weightKg: 28.1,
-    isNeutered: true, isInsured: true,
-    allergies: ['Chicken'],
-    about: 'Loves a slow morning, an enthusiastic afternoon, and zoomies right before bed. '
-        'Allergic to chicken; loves salmon, sweet potato, and stealing socks.',
-    microchipNumber: '985 113 002 145 880',
-    primaryVet: 'Happy Paws Vet',
-    userId: '', createdAt: DateTime(2022),
-  );
+  Pet? _pet;
+  bool _loading = true;
 
   static const _tabs3 = ['Overview', 'Health', 'Photos'];
 
@@ -41,6 +32,22 @@ class _PetProfilePageState extends State<PetProfilePage>
     super.initState();
     _tabs = TabController(length: 3, vsync: this);
     _tabs.addListener(() => setState(() {}));
+    _loadPet();
+  }
+
+  Future<void> _loadPet() async {
+    try {
+      final pet = await PetRepository(Supabase.instance.client).getPetById(widget.petId);
+      if (mounted) {
+        setState(() {
+          _pet = pet;
+          if (pet != null) _mood = pet.mood;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -51,6 +58,37 @@ class _PetProfilePageState extends State<PetProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        backgroundColor: AppColors.bone,
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.clay500, strokeWidth: 2),
+        ),
+      );
+    }
+    if (_pet == null) {
+      return Scaffold(
+        backgroundColor: AppColors.bone,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(LucideIcons.triangleAlert, size: 36, color: AppColors.rose600),
+                const SizedBox(height: 12),
+                Text("Pet not found",
+                    style: GoogleFonts.bricolageGrotesque(
+                        fontSize: 22, fontWeight: FontWeight.w600, color: AppColors.ink)),
+                const SizedBox(height: 12),
+                ElevatedButton(onPressed: () => context.pop(), child: const Text('Go back')),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bone,
       body: NestedScrollView(
@@ -58,8 +96,8 @@ class _PetProfilePageState extends State<PetProfilePage>
         body: TabBarView(
           controller: _tabs,
           children: [
-            _OverviewTab(pet: _pet),
-            _HealthTab(pet: _pet),
+            _OverviewTab(pet: _pet!),
+            _HealthTab(pet: _pet!),
             const _PhotosTab(),
           ],
         ),
@@ -114,7 +152,7 @@ class _PetProfilePageState extends State<PetProfilePage>
                     child: SizedBox(
                       width: 168, height: 168,
                       child: PetAvatarWidget(
-                        pet: _pet.copyWith(mood: _mood),
+                        pet: _pet!.copyWith(mood: _mood),
                         size: 168,
                         showMoodRing: false,
                       ),
@@ -125,13 +163,13 @@ class _PetProfilePageState extends State<PetProfilePage>
                   const SizedBox(height: 4),
 
                   // Name
-                  Text(_pet.name,
+                  Text(_pet!.name,
                       style: GoogleFonts.bricolageGrotesque(
                           fontSize: 42, fontWeight: FontWeight.w600,
                           color: AppColors.ink, letterSpacing: -1.5, height: 1.0)),
 
                   const SizedBox(height: 3),
-                  Text('${_pet.breed} · ${_pet.gender ?? ''}',
+                  Text('${_pet!.breed} · ${_pet!.gender ?? ''}',
                       style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.stone)),
 
                   const SizedBox(height: 12),
@@ -181,9 +219,9 @@ class _PetProfilePageState extends State<PetProfilePage>
                       ),
                       child: Row(
                         children: [
-                          _StatCell(value: _pet.ageLabel, label: 'AGE', bordered: true),
+                          _StatCell(value: _pet!.ageLabel, label: 'AGE', bordered: true),
                           _StatCell(
-                            value: '${(_pet.weightKg! * 2.205).toStringAsFixed(0)} lbs',
+                            value: '${(_pet!.weightKg! * 2.205).toStringAsFixed(0)} lbs',
                             label: 'WEIGHT', bordered: true,
                           ),
                           _StatCell(value: 'Playful', label: 'MOOD', bordered: false),

@@ -6,9 +6,11 @@ import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/home_bloc.dart';
+import '../../pets/cubit/active_pet_cubit.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/router/app_router.dart';
 import '../../../data/models/pet_model.dart';
+import '../../../data/models/vaccine_model.dart';
 import '../../../data/models/care_event_model.dart';
 import '../../../data/repositories/pet_repository.dart';
 import '../../../shared/widgets/pet_avatar_widget.dart';
@@ -232,7 +234,10 @@ class _ReadyView extends StatelessWidget {
                   final pet = state.pets[i];
                   final active = pet.id == state.activePet.id;
                   return GestureDetector(
-                    onTap: () => context.read<HomeBloc>().add(HomePetSwitched(pet.id)),
+                    onTap: () {
+                      context.read<HomeBloc>().add(HomePetSwitched(pet.id));
+                      context.read<ActivePetCubit>().setActive(pet.id);
+                    },
                     child: AnimatedContainer(
                       duration: 200.ms,
                       padding: const EdgeInsets.fromLTRB(6, 5, 14, 5),
@@ -281,9 +286,14 @@ class _ReadyView extends StatelessWidget {
                   _PetHeroCard(pet: state.activePet),
                   const SizedBox(height: 14),
 
-                  // ── Up next alert ──────────────────────────────
-                  _UpNextCard(),
-                  const SizedBox(height: 18),
+                  // ── Up next alert (real data) ──────────────────
+                  if (state.upNextVaccine != null) ...[
+                    _UpNextCard(
+                      petId: state.activePet.id,
+                      vaccine: state.upNextVaccine!,
+                    ),
+                    const SizedBox(height: 18),
+                  ],
 
                   // ── Quick care ─────────────────────────────────
                   _QuickCareRow(petId: state.activePet.id),
@@ -310,7 +320,9 @@ class _PetHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () => context.push('/pet/${pet.id}'),
+      child: Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft, end: Alignment.bottomRight,
@@ -341,7 +353,7 @@ class _PetHeroCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('YOUR BUDDY',
+                          Text('MEET',
                               style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600,
                                   color: AppColors.stone2, letterSpacing: 0.1 * 10)),
                           const SizedBox(height: 6),
@@ -435,7 +447,8 @@ class _PetHeroCard extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.04, end: 0);
+      ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.04, end: 0),
+    );
   }
 }
 
@@ -468,44 +481,63 @@ class _StatPill extends StatelessWidget {
 
 // ─── Up Next ─────────────────────────────────────────────────────────────────
 class _UpNextCard extends StatelessWidget {
+  final String petId;
+  final Vaccine vaccine;
+  const _UpNextCard({required this.petId, required this.vaccine});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.ochre50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.ochre100),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.ochre100),
+    final overdue = vaccine.status == VaccineStatus.overdue;
+    final bg     = overdue ? AppColors.rose50  : AppColors.ochre50;
+    final border = overdue ? AppColors.rose100 : AppColors.ochre100;
+    final fg     = overdue ? AppColors.rose600 : AppColors.ochre600;
+
+    final subtitle = [vaccine.clinic, vaccine.vet]
+        .where((s) => s != null && s.isNotEmpty)
+        .join(' · ');
+
+    return GestureDetector(
+      onTap: () => context.push('/pet/$petId/vaccines/${vaccine.id}'),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40, height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: border),
+              ),
+              child: Icon(Icons.vaccines_outlined, size: 20, color: fg),
             ),
-            child: const Icon(Icons.vaccines_outlined, size: 20, color: AppColors.ochre600),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('UP NEXT · IN 12 DAYS',
-                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600,
-                        color: AppColors.ochre600, letterSpacing: 0.5)),
-                const SizedBox(height: 2),
-                Text('Rabies booster — May 27',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.ink)),
-                Text('Happy Paws Vet · Dr. Nguyen',
-                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.stone)),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text((overdue ? 'OVERDUE · ' : 'UP NEXT · ') + vaccine.dueLabelShort.toUpperCase(),
+                      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600,
+                          color: fg, letterSpacing: 0.5)),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${vaccine.name} — ${DateFormat('MMM d').format(vaccine.nextDue)}',
+                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.ink),
+                  ),
+                  if (subtitle.isNotEmpty)
+                    Text(subtitle,
+                        style: GoogleFonts.inter(fontSize: 12, color: AppColors.stone)),
+                ],
+              ),
             ),
-          ),
-          const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.stone2),
-        ],
+            const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.stone2),
+          ],
+        ),
       ),
     );
   }
@@ -517,10 +549,10 @@ class _QuickCareRow extends StatelessWidget {
   const _QuickCareRow({required this.petId});
 
   static const _actions = [
-    (Icons.medical_services_outlined, 'Vet',  AppColors.clay50,   AppColors.clay600),
-    (Icons.medication_outlined,        'Meds', AppColors.rose50,   AppColors.rose600),
-    (Icons.directions_walk_rounded,    'Walk', AppColors.sage50,   AppColors.sage600),
-    (Icons.restaurant_outlined,        'Meal', AppColors.ochre50,  AppColors.ochre600),
+    (Icons.vaccines_outlined,    'Vaccines', AppColors.clay50,  AppColors.clay600, 'vaccines'),
+    (Icons.medication_outlined,  'Meds',     AppColors.rose50,  AppColors.rose600, 'medications'),
+    (Icons.folder_outlined,      'Records',  AppColors.ochre50, AppColors.ochre600, 'records'),
+    (Icons.document_scanner_outlined, 'Vault', AppColors.sage50, AppColors.sage600, 'vault'),
   ];
 
   @override
@@ -547,7 +579,15 @@ class _QuickCareRow extends StatelessWidget {
             final a = e.value;
             return Expanded(
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  switch (a.$5) {
+                    case 'vaccines':    context.push('/pet/$petId/vaccines'); break;
+                    case 'medications': context.push('/pet/$petId/medications'); break;
+                    case 'records':     context.push('/pet/$petId/records'); break;
+                    case 'vault':       context.push(AppRoutes.documents); break;
+                    case 'ai':          context.go(AppRoutes.aiAssistant); break;
+                  }
+                },
                 child: Container(
                   margin: EdgeInsets.only(
                     left: e.key == 0 ? 0 : 4,

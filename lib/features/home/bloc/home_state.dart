@@ -35,12 +35,13 @@ class HomeReady extends HomeState {
     Pet? activePet,
     List<CareEvent>? todayEvents,
     Vaccine? upNextVaccine,
+    bool clearUpNext = false,
   }) =>
       HomeReady(
         pets: pets ?? this.pets,
         activePet: activePet ?? this.activePet,
         todayEvents: todayEvents ?? this.todayEvents,
-        upNextVaccine: upNextVaccine ?? this.upNextVaccine,
+        upNextVaccine: clearUpNext ? null : (upNextVaccine ?? this.upNextVaccine),
       );
 
   @override

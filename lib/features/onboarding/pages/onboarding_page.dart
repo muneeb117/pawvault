@@ -10,6 +10,8 @@ import '../bloc/onboarding_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/router/router_helpers.dart';
+import '../../../core/assets/app_icons.dart';
+import '../../../core/notifications/notifications_service.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // PawVault — Onboarding
@@ -280,11 +282,7 @@ class _Logo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 26, height: 26,
-          decoration: BoxDecoration(color: AppColors.ink, borderRadius: BorderRadius.circular(7)),
-          child: const Icon(LucideIcons.pawPrint, color: AppColors.bone, size: 14),
-        ),
+        const AppIcon(AppIcons.logoMarkPrimary, size: 28),
         const SizedBox(width: 7),
         Text(
           'PawVault',
@@ -390,7 +388,7 @@ class _QuestionFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -398,15 +396,15 @@ class _QuestionFrame extends StatelessWidget {
               style: GoogleFonts.bricolageGrotesque(
                   fontSize: 12, fontWeight: FontWeight.w500,
                   letterSpacing: 0.72, color: AppColors.clay500)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(question,
               style: GoogleFonts.bricolageGrotesque(
-                  fontSize: 30, fontWeight: FontWeight.w600,
-                  color: AppColors.ink, letterSpacing: -0.9, height: 1.1)),
-          const SizedBox(height: 8),
+                  fontSize: 28, fontWeight: FontWeight.w600,
+                  color: AppColors.ink, letterSpacing: -0.9, height: 1.08)),
+          const SizedBox(height: 6),
           Text(helper,
-              style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone, height: 1.5)),
-          const SizedBox(height: 28),
+              style: GoogleFonts.inter(fontSize: 13, color: AppColors.stone, height: 1.45)),
+          const SizedBox(height: 14),
           Expanded(child: child),
         ],
       ),
@@ -434,9 +432,10 @@ class _QuestionSpecies extends StatelessWidget {
       question: "Who's your\nfavourite buddy?",
       helper: "We'll preselect your species when adding pets.",
       child: GridView.count(
+        shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 2,
         crossAxisSpacing: 10, mainAxisSpacing: 10,
-        childAspectRatio: 1.1,
+        childAspectRatio: 1.45,
         children: _opts.map((o) {
           final active = o.$1 == selected;
           return GestureDetector(
@@ -452,19 +451,19 @@ class _QuestionSpecies extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 52, height: 52,
+                    width: 40, height: 40,
                     decoration: BoxDecoration(
                       color: active ? Colors.white.withValues(alpha: 0.14) : AppColors.bone,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
                       child: o.$2 != null
-                          ? Lottie.asset(o.$2!, width: 44, height: 44,
-                              errorBuilder: (_, __, ___) => Text(o.$3, style: const TextStyle(fontSize: 28)))
-                          : Text(o.$3, style: const TextStyle(fontSize: 28)),
+                          ? Lottie.asset(o.$2!, width: 32, height: 32,
+                              errorBuilder: (_, __, ___) => Text(o.$3, style: const TextStyle(fontSize: 22)))
+                          : Text(o.$3, style: const TextStyle(fontSize: 22)),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(o.$4, style: GoogleFonts.inter(
                       fontSize: 13, fontWeight: FontWeight.w600,
                       color: active ? AppColors.bone : AppColors.ink)),
@@ -491,9 +490,10 @@ class _QuestionPetCount extends StatelessWidget {
       question: 'How many pets\nat home?',
       helper: 'Each gets their own vault, with quick switching from Home.',
       child: GridView.count(
+        shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 2,
         crossAxisSpacing: 10, mainAxisSpacing: 10,
-        childAspectRatio: 1.4,
+        childAspectRatio: 1.8,
         children: _opts.map((c) {
           final active = c == selected;
           return GestureDetector(
@@ -525,12 +525,12 @@ class _QuestionPriorities extends StatelessWidget {
   const _QuestionPriorities({super.key});
 
   static const _opts = [
-    ('vaccines',  LucideIcons.syringe,         'Vaccines'),
-    ('meds',      LucideIcons.pill,            'Medications'),
-    ('records',   LucideIcons.folderHeart,    'Health records'),
-    ('activities', LucideIcons.activity,       'Activities'),
-    ('grooming',  LucideIcons.bath,            'Grooming'),
-    ('food',      LucideIcons.utensils,        'Food & meals'),
+    ('vaccines',  'syringe',    'Vaccines'),
+    ('meds',      'pill',       'Medications'),
+    ('records',   'folder',     'Health records'),
+    ('activities', 'pulse',     'Activities'),
+    ('grooming',  'grooming',   'Grooming'),
+    ('food',      'food-bowl',  'Food & meals'),
   ];
 
   @override
@@ -559,7 +559,7 @@ class _QuestionPriorities extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(o.$2, size: 16,
+                      AppIcon.named(o.$2, size: 16,
                           color: active ? AppColors.bone : AppColors.clay500),
                       const SizedBox(width: 8),
                       Text(o.$3,
@@ -582,10 +582,10 @@ class _QuestionPriorities extends StatelessWidget {
 class _QuestionCareTime extends StatelessWidget {
   const _QuestionCareTime({super.key});
   static const _opts = [
-    ('morning',   LucideIcons.sunrise,  'Morning',   'Before 11am'),
-    ('afternoon', LucideIcons.sun,      'Afternoon', '11am – 5pm'),
-    ('evening',   LucideIcons.sunset,   'Evening',   'After 5pm'),
-    ('anytime',   LucideIcons.clock,    'Anytime',   'Whenever they need it'),
+    ('morning',   'sun',    'Morning',   'Before 11am'),
+    ('afternoon', 'sun',    'Afternoon', '11am – 5pm'),
+    ('evening',   'moon',   'Evening',   'After 5pm'),
+    ('anytime',   'clock',  'Anytime',   'Whenever they need it'),
   ];
 
   @override
@@ -596,6 +596,7 @@ class _QuestionCareTime extends StatelessWidget {
       question: 'When do you\nlook after them?',
       helper: 'Helps us pick a smart default time for reminders.',
       child: ListView.separated(
+        shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
         itemCount: _opts.length,
         separatorBuilder: (_, __) => const SizedBox(height: 8),
         itemBuilder: (_, i) {
@@ -619,7 +620,10 @@ class _QuestionCareTime extends StatelessWidget {
                       color: active ? Colors.white.withValues(alpha: 0.14) : AppColors.clay50,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(o.$2, size: 18, color: active ? AppColors.bone : AppColors.clay600),
+                    child: Center(
+                      child: AppIcon.named(o.$2, size: 18,
+                          color: active ? AppColors.bone : AppColors.clay600),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -637,7 +641,8 @@ class _QuestionCareTime extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (active) const Icon(LucideIcons.check, size: 18, color: AppColors.bone),
+                  if (active)
+                    AppIcon.named('check', size: 18, color: AppColors.bone),
                 ],
               ),
             ),
@@ -652,12 +657,12 @@ class _QuestionCareTime extends StatelessWidget {
 class _QuestionReferral extends StatelessWidget {
   const _QuestionReferral({super.key});
   static const _opts = [
-    ('app_store',  LucideIcons.appWindow,         'App Store'),
-    ('friend',     LucideIcons.users,             'Friend or family'),
-    ('vet',        LucideIcons.stethoscope,       'My vet recommended'),
-    ('social',     LucideIcons.share2,            'Social media'),
-    ('search',     LucideIcons.search,            'Google search'),
-    ('other',      LucideIcons.circleQuestionMark, 'Somewhere else'),
+    ('app_store',  'download',     'App Store'),
+    ('friend',     'users',        'Friend or family'),
+    ('vet',        'stethoscope',  'My vet recommended'),
+    ('social',     'share',        'Social media'),
+    ('search',     'search',       'Google search'),
+    ('other',      'help',         'Somewhere else'),
   ];
 
   @override
@@ -668,6 +673,7 @@ class _QuestionReferral extends StatelessWidget {
       question: 'How did you\nfind PawVault?',
       helper: "Helps us figure out what’s actually working — thank you.",
       child: ListView.separated(
+        shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
         itemCount: _opts.length,
         separatorBuilder: (_, __) => const SizedBox(height: 6),
         itemBuilder: (_, i) {
@@ -685,7 +691,8 @@ class _QuestionReferral extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(o.$2, size: 18, color: active ? AppColors.bone : AppColors.stone),
+                  AppIcon.named(o.$2, size: 18,
+                      color: active ? AppColors.bone : AppColors.stone),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(o.$3,
@@ -693,7 +700,8 @@ class _QuestionReferral extends StatelessWidget {
                             fontSize: 14, fontWeight: FontWeight.w500,
                             color: active ? AppColors.bone : AppColors.ink)),
                   ),
-                  if (active) const Icon(LucideIcons.check, size: 16, color: AppColors.bone),
+                  if (active)
+                    AppIcon.named('check', size: 16, color: AppColors.bone),
                 ],
               ),
             ),
@@ -757,7 +765,14 @@ class _QuestionNotifications extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () => context.read<OnboardingBloc>().add(const OnboardingNotificationsToggled(true)),
+            onTap: () async {
+              final granted = await NotificationsService.instance.requestPermission();
+              if (!context.mounted) return;
+              context.read<OnboardingBloc>().add(OnboardingNotificationsToggled(granted));
+              if (granted) {
+                NotificationsService.instance.sendTest();
+              }
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(

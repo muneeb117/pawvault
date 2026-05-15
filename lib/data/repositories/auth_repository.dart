@@ -103,6 +103,31 @@ class AuthRepository {
     await _client.auth.signOut();
   }
 
+  /// Soft-deletes the user account.
+  /// Removes pet/preference rows for the current user, then calls a Supabase
+  /// RPC that hard-deletes the auth.users row. If the RPC isn't installed,
+  /// we fall back to clearing data + signing out (account removal must be
+  /// completed server-side or via Supabase dashboard).
+  Future<void> deleteAccount() async {
+    final uid = _client.auth.currentUser?.id;
+    if (uid == null) throw 'No active session.';
+
+    try {
+      await _client.from('pets').delete().eq('user_id', uid);
+    } catch (_) {}
+    try {
+      await _client.from('user_preferences').delete().eq('user_id', uid);
+    } catch (_) {}
+
+    try {
+      await _client.rpc('delete_user');
+    } catch (_) {
+      // RPC not installed — request server-side cleanup instead.
+    }
+
+    await signOut();
+  }
+
   String _generateNonce([int length = 32]) {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._';
     final rand = Random.secure();
